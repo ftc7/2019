@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -44,12 +45,17 @@ class gpPrev1 {
     }
 }
 
+@Config
+class config {
+    public static int servoPower = 0;
+}
+
 @TeleOp(name = "Driive v2")
 public class DriiveTeleop extends OpMode {
     private DriivePrototypeHardware robot = new DriivePrototypeHardware();
-    private Driive driving = new Driive();
     private gpPrev1 prev1 = new gpPrev1();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private Driive driving = new Driive();
 
     public void init() {
         robot.init(hardwareMap);
@@ -63,11 +69,18 @@ public class DriiveTeleop extends OpMode {
         telemetry.update();
     }
 
+    public void init_loop() {
+        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+        TelemetryPacket packet =  new TelemetryPacket();
+        driving.updateTelemetry(packet);
+        dashboard.sendTelemetryPacket(packet);
+    }
+
     public void loop() {
         robot.updateGyro(0);
 
         driving.cartesian(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-        driving.gyro(robot.angles.thirdAngle);
+        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
         driving.driive();
 
         if(gamepad1.x && !prev1.x) {
@@ -85,9 +98,18 @@ public class DriiveTeleop extends OpMode {
         packet.put("righteous", driving.righteous);
         packet.put("speed", driving.speed);
 
-        packet.put("gyro", robot.angles.thirdAngle);
+        packet.put("thirdAngle", Math.toRadians(robot.angles.thirdAngle));
+
+        driving.updateTelemetry(packet);
 
         dashboard.sendTelemetryPacket(packet);
-        //dashboard.
+
+/*        if(gamepad1.left_bumper) {
+            robot.servo.setPower(100);
+        } else if(gamepad1.right_bumper) {
+            robot.servo.setPower(-1);
+        } else {
+            robot.servo.setPower(0);
+        }*/
     }
 }

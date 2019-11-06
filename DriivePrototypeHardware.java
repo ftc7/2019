@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -16,6 +17,8 @@ public class DriivePrototypeHardware {
     public DcMotor two = null;
     public DcMotor three = null;
     public DcMotor four = null;
+
+    //public CRServo servo = null;
 
     public BNO055IMU imu;
     public Orientation angles;
@@ -35,6 +38,8 @@ public class DriivePrototypeHardware {
         two = ahwMap.dcMotor.get("two");
         three = ahwMap.dcMotor.get("three");
         four = ahwMap.dcMotor.get("four");
+
+        //servo = ahwMap.crservo.get("servo");
 
         /*three.setDirection(DcMotor.Direction.REVERSE);
         four.setDirection(DcMotor.Direction.REVERSE);*/

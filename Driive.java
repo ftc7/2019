@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Driive {
@@ -12,6 +13,8 @@ public class Driive {
     private double setAngle;
     private double turn;
     private boolean turning = false;
+
+    private double[] wheelPowers;
 
     /**
      * Marks whether the robot's driving is field centric
@@ -59,6 +62,7 @@ public class Driive {
         this.wheels = wheels;
         this.wheelAngles = wheelAngles;
         this.zero = zero;
+        this.wheelPowers = new double[wheels.length];
     }
 
     /**
@@ -94,7 +98,7 @@ public class Driive {
      * @param angle The angle obtained from the gyroscope
      */
     public void gyro(double angle) {
-        this.currentAngle = angle;
+        currentAngle = angle;
     }
 
     /**
@@ -121,7 +125,7 @@ public class Driive {
     public void driive() {
         // Accounts for rotation using gyro values (if field centric)
         if(fieldCentric) {
-            theta += currentAngle + zero;
+            theta += (currentAngle + zero);
         }
 
         // Code for automated turning
@@ -153,6 +157,20 @@ public class Driive {
         // Send power to wheels
         for(int i = 0; i != wheels.length; i++) {
             wheels[i].setPower(Math.sin(wheelAngles[i] - theta) * r + turn);
+            wheelPowers[i] = Math.sin(wheelAngles[i] - theta) * r + turn;
+        }
+    }
+
+    public void updateTelemetry(TelemetryPacket packet) {
+        packet.put("currentAngle", currentAngle);
+        packet.put("zero", zero);
+        packet.put("theta", theta);
+        packet.put("r", r);
+        packet.put("setAngle", setAngle);
+        packet.put("turn", turn);
+        packet.put("turning", turning);
+        for(int i = 0; i != wheelPowers.length; i++) {
+            packet.put("wheel power " + i, wheelPowers[i]);
         }
     }
 
