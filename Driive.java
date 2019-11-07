@@ -105,7 +105,7 @@ public class Driive {
      * Resets zero to current position
      */
     public void resetZero() {
-        zero = currentAngle;
+        zero = -currentAngle;
     }
 
     /**
@@ -113,8 +113,18 @@ public class Driive {
      *
      * @param delta The amount to turn
      */
-    public void turn(double delta) {
+    public void turnRel(double delta) {
         setAngle = wrap(currentAngle - delta);
+        turning = true;
+    }
+
+    /**
+     * Turns to a specified angle
+     *
+     * @param angle The angle to turn to
+     */
+    public void turnAbs(double angle) {
+        setAngle = angle;
         turning = true;
     }
 
@@ -132,17 +142,19 @@ public class Driive {
         if(righteous || turning) {
             // Sets amount to turn based on target position
             if(turn == 0.0) {
-                turn = wrap(currentAngle - setAngle) / 18;
+                turn = Math.pow(wrap(currentAngle - setAngle), 3);
             }
             // Sets target to current if user is manually turning
             else {
                 setAngle = currentAngle;
             }
 
+            double min = 0.05;
+            double max = 0.10;
             // Avoids low power/squeaking motors
-            if(Math.abs(turn) < 0.05) turn = 0;
-            if(turn < 0.15 && turn > 0.05) turn = 0.15;
-            if(turn > -0.15 && turn < -0.05) turn = -0.15;
+            if(Math.abs(turn) < min) turn = 0;
+            if(turn < max && turn > min) turn = max;
+            if(turn > -max && turn < -min) turn = -max;
         }
 
         // Deactivate turning when the turn is done

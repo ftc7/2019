@@ -18,7 +18,8 @@ public class DriivePrototypeHardware {
     public DcMotor three = null;
     public DcMotor four = null;
 
-    //public CRServo servo = null;
+    public CRServo servo = null;
+    public CRServo servo1 = null;
 
     public BNO055IMU imu;
     public Orientation angles;
@@ -39,7 +40,8 @@ public class DriivePrototypeHardware {
         three = ahwMap.dcMotor.get("three");
         four = ahwMap.dcMotor.get("four");
 
-        //servo = ahwMap.crservo.get("servo");
+        servo = ahwMap.crservo.get("servo");
+        servo1 = ahwMap.crservo.get("servo1");
 
         /*three.setDirection(DcMotor.Direction.REVERSE);
         four.setDirection(DcMotor.Direction.REVERSE);*/
