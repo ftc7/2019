@@ -12,23 +12,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-public class DriivePrototypeHardware {
-    public DcMotor one = null;
-    public DcMotor two = null;
-    public DcMotor three = null;
-    public DcMotor four = null;
+class DriivePrototypeHardware {
+    DcMotor one = null;
+    DcMotor two = null;
+    DcMotor three = null;
+    DcMotor four = null;
 
-    public CRServo servo = null;
-    public CRServo servo1 = null;
+    CRServo servo = null;
+    CRServo servo1 = null;
 
-    public BNO055IMU imu;
-    public Orientation angles;
-    public Acceleration gravity;
-    public float dangles[] = new float[3];
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+    float[] dangles = new float[3];
 
     HardwareMap hwMap = null;
 
-    public DriivePrototypeHardware(){
+    DriivePrototypeHardware(){
 
     }
 
@@ -70,7 +70,7 @@ public class DriivePrototypeHardware {
         dangles[2] = angles.thirdAngle;
     }
 
-    public void updateGyro(int damping) {
+    public void updateGyro() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
         /*dangles[0] = ((dangles[0] * damping) + angles.firstAngle) / (damping + 1);

@@ -10,42 +10,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
-class gpPrev1 {
-    float left_stick_x = 0f;
-    float left_stick_y = 0f;
-    float right_stick_x = 0f;
-    float right_stick_y = 0f;
-    boolean dpad_up = false;
-    boolean dpad_down = false;
-    boolean dpad_left = false;
-    boolean dpad_right = false;
-    boolean a = false;
-    boolean b = false;
-    boolean x = false;
-    boolean y = false;
-    boolean start = false;
-    boolean back = false;
-    boolean guide = false;
-
-    void update(Gamepad gamepad) {
-        left_stick_x = gamepad.left_stick_x;
-        left_stick_y = gamepad.left_stick_y;
-        right_stick_x = gamepad.right_stick_x;
-        right_stick_y = gamepad.right_stick_y;
-        dpad_up = gamepad.dpad_up;
-        dpad_down = gamepad.dpad_down;
-        dpad_left = gamepad.dpad_left;
-        dpad_right = gamepad.dpad_right;
-        a = gamepad.a;
-        b = gamepad.b;
-        x = gamepad.x;
-        y = gamepad.y;
-        start = gamepad.start;
-        back = gamepad.back;
-        guide = gamepad.guide;
-    }
-}
-
 @Config
 class config {
     //public static int servoPower = 0;
@@ -60,7 +24,6 @@ public class DriiveTeleop extends OpMode {
     private Driive driving = new Driive();
 
     private double angle1 = 0.0;
-    private double currentAngle = 0.0;
 
     public void init() {
         robot.init(hardwareMap);
@@ -83,11 +46,11 @@ public class DriiveTeleop extends OpMode {
     }
 
     public void loop() {
-        currentAngle = Math.toRadians(-robot.angles.thirdAngle);
+        double currentAngle = Math.toRadians(-robot.angles.thirdAngle);
 
         // -- DRIVING --
 
-        robot.updateGyro(0);
+        robot.updateGyro();
 
         driving.cartesian(gamepad1.left_stick_x, gamepad1.left_stick_y, -gamepad1.right_stick_x);
         driving.gyro(currentAngle);
@@ -109,7 +72,6 @@ public class DriiveTeleop extends OpMode {
             driving.resetZero();
         }
 
-        //prev1.update(gamepad1);
         try {
             prev1.copy(gamepad1);
         } catch(RobotCoreException e) {}
@@ -137,6 +99,10 @@ public class DriiveTeleop extends OpMode {
         } else {
             robot.servo.setPower(0);
             robot.servo1.setPower(0);
+        }
+
+        if(gamepad1.back) {
+            driving.polarAuto(1, 0, 100000);
         }
     }
 }

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class Driive {
+class Driive {
     private DcMotor[] wheels;
     private double[] wheelAngles;
     private double zero;
@@ -20,19 +20,19 @@ public class Driive {
      * Marks whether the robot's driving is field centric
      * Defaults to true
      */
-    public boolean fieldCentric = true;
+    boolean fieldCentric = true;
 
     /**
      * Marks whether the robot fights to maintain its orientation
      * Defaults to false
      */
-    public boolean righteous = false;
+    boolean righteous = false;
 
     /**
      * Speed, works on a scale of 1-10
      * Affects the overall speed of the robot
      */
-    public int speed = 10;
+    int speed = 10;
 
     /**
      * Initializes the Driive instance
@@ -42,7 +42,7 @@ public class Driive {
      * @param wheelAngles An array of the physical angles of the wheels, e.g. 0,90,180,270
      * @throws java.lang.ArrayIndexOutOfBoundsException - if wheels[] and wheelAngles[] are different lengths
      */
-    public void init(DcMotor[] wheels, double[] wheelAngles) throws Exception{
+    void init(DcMotor[] wheels, double[] wheelAngles) throws Exception{
         init(wheels, wheelAngles, 0);
     }
 
@@ -55,7 +55,7 @@ public class Driive {
      * @param zero The starting angle of the robot; can be adjusted to change the initial "front"
      * @throws java.lang.Exception - if wheels[] and wheelAngles[] are different lengths
      */
-    public void init(DcMotor[] wheels, double[] wheelAngles, double zero) throws Exception{
+    void init(DcMotor[] wheels, double[] wheelAngles, double zero) throws Exception{
         if(wheels.length != wheelAngles.length) {
             throw new java.lang.Exception("Wheels[] and wheel angles[] are different lengths; please check your init code");
         }
@@ -72,7 +72,7 @@ public class Driive {
      * @param x The X value of the joystick
      * @param y The Y value of the joystick
      */
-    public void cartesian(double x, double y, double turn) {
+    void cartesian(double x, double y, double turn) {
         r = Math.sqrt(x*x+y*y);
         theta = Math.atan2(x, y);
         this.turn = turn;
@@ -85,10 +85,35 @@ public class Driive {
      * @param r The magnitude of the vector
      * @param theta The angle of the vector
      */
-    public void polar(double r, double theta, double turn) {
+    void polar(double r, double theta, double turn) {
         this.r = r;
         this.theta = theta;
         this.turn = turn;
+    }
+
+    /**
+     * Drives in a given direction at a given speed for a given distance, using encoders.
+     *
+     * @param r
+     * @param theta
+     * @param distance
+     */
+    void polarAuto(double r, double theta, double distance) {
+        this.r = r;
+        this.theta = theta;
+        double average = 0.0;
+        boolean righteousPrev = righteous;
+        righteous = true;
+        while(average < distance) {
+            driive();
+            double avg = 1;
+            for(int i = 0; i < wheels.length; i++) {
+                double currentWheelSin = Math.sin(wheelAngles[i] - theta);
+                avg = ((avg * (i + 1)) * currentWheelSin * wheels[i].getCurrentPosition()) / (i + 1);
+            }
+            average += avg;
+        }
+        righteous = righteousPrev;
     }
 
     /**
@@ -97,14 +122,14 @@ public class Driive {
      *
      * @param angle The angle obtained from the gyroscope
      */
-    public void gyro(double angle) {
+    void gyro(double angle) {
         currentAngle = angle;
     }
 
     /**
      * Resets zero to current position
      */
-    public void resetZero() {
+    void resetZero() {
         zero = -currentAngle;
     }
 
@@ -113,7 +138,7 @@ public class Driive {
      *
      * @param delta The amount to turn
      */
-    public void turnRel(double delta) {
+    void turnRel(double delta) {
         setAngle = wrap(currentAngle - delta);
         turning = true;
     }
@@ -123,7 +148,7 @@ public class Driive {
      *
      * @param angle The angle to turn to
      */
-    public void turnAbs(double angle) {
+    void turnAbs(double angle) {
         setAngle = angle;
         turning = true;
     }
@@ -132,7 +157,7 @@ public class Driive {
      * Does the actual processing and driving
      * Call once per loop
      */
-    public void driive() {
+    void driive() {
         // Accounts for rotation using gyro values (if field centric)
         if(fieldCentric) {
             theta += (currentAngle + zero);
@@ -173,7 +198,12 @@ public class Driive {
         }
     }
 
-    public void updateTelemetry(TelemetryPacket packet) {
+    /**
+     * Updates the telemetry packet with driving info
+     *
+     * @param packet Packet to add data to
+     */
+    void updateTelemetry(TelemetryPacket packet) {
         packet.put("currentAngle", currentAngle);
         packet.put("zero", zero);
         packet.put("theta", theta);
@@ -187,12 +217,13 @@ public class Driive {
     }
 
     private double wrap(double input) {
-        while(Math.abs(input) > 180) {
-            if(input < -180) {
-                input += 360;
+        double pi = Math.PI;
+        while(Math.abs(input) > pi) {
+            if(input < -pi) {
+                input += 2*pi;
             }
             else {
-                input -= 360;
+                input -= 2*pi;
             }
         }
         return input;
