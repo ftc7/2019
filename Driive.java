@@ -93,26 +93,47 @@ class Driive {
 
     /**
      * Drives in a given direction at a given speed for a given distance, using encoders.
+     * Blocking function, will not exit until drive is completed.
      *
-     * @param r
-     * @param theta
-     * @param distance
+     * @param r Speed
+     * @param theta Direction in radians from zero
+     * @param distance Distance in ____
      */
-    void polarAuto(double r, double theta, double distance) {
+    void polarAuto(double r, double theta, double distance, TeleAuto callback) {
         this.r = r;
         this.theta = theta;
-        double average = 0.0;
+
         boolean righteousPrev = righteous;
+        boolean fieldCentricPrev = fieldCentric;
+        fieldCentric = true;
         righteous = true;
-        while(average < distance) {
-            driive();
-            double avg = 1;
-            for(int i = 0; i < wheels.length; i++) {
-                double currentWheelSin = Math.sin(wheelAngles[i] - theta);
-                avg = ((avg * (i + 1)) * currentWheelSin * wheels[i].getCurrentPosition()) / (i + 1);
-            }
-            average += avg;
+
+        double[] wheelDistances = new double[wheels.length];
+        for(int i = 0; i < wheels.length; i++) {
+            wheelDistances[i] = wheels[i].getCurrentPosition();
         }
+
+        while(callback.opModeIsActive()) {
+            driive();
+            TelemetryPacket packet = new TelemetryPacket();
+
+            double total = 0;
+            for(int i = 0; i < wheels.length; i++) {
+                packet.put("wheel position " + i, wheels[i].getCurrentPosition());
+                double currentWheelSin = Math.sin(wheelAngles[i] - theta);
+                double wheelDistance = wheels[i].getCurrentPosition() - wheelDistances[i];
+                double wheelRobotDistance = currentWheelSin * wheelDistance;
+                total += wheelRobotDistance;
+            }
+            total /= wheels.length;
+
+            updateTelemetry(packet);
+            packet.put("total", total);
+            callback.sendPacket(packet);
+
+            if (total > distance) break;
+        }
+        fieldCentric = fieldCentricPrev;
         righteous = righteousPrev;
     }
 
@@ -228,5 +249,9 @@ class Driive {
         }
         return input;
     }
+}
 
+interface TeleAuto {
+    void sendPacket(TelemetryPacket packet);
+    boolean opModeIsActive();
 }

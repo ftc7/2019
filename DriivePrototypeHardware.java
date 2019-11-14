@@ -32,7 +32,7 @@ class DriivePrototypeHardware {
 
     }
 
-    public void init(HardwareMap ahwMap) {
+    void init(HardwareMap ahwMap) {
         hwMap = ahwMap;
 
         one = ahwMap.dcMotor.get("one");
@@ -70,7 +70,7 @@ class DriivePrototypeHardware {
         dangles[2] = angles.thirdAngle;
     }
 
-    public void updateGyro() {
+    void updateGyro() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
         /*dangles[0] = ((dangles[0] * damping) + angles.firstAngle) / (damping + 1);

@@ -100,9 +100,5 @@ public class DriiveTeleop extends OpMode {
             robot.servo.setPower(0);
             robot.servo1.setPower(0);
         }
-
-        if(gamepad1.back) {
-            driving.polarAuto(1, 0, 100000);
-        }
     }
 }
