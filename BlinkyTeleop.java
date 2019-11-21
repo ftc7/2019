@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
-@TeleOp(name = "Driive v2")
-public class DriiveTeleop extends OpMode {
-    private DriivePrototypeHardware robot = new DriivePrototypeHardware();
+@TeleOp(name = "Blinky")
+public class BlinkyTeleop extends OpMode {
+    private Blinky robot = new Blinky();
     //private gpPrev1 prev1 = new gpPrev1();
     private Gamepad prev1 = new Gamepad();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -34,20 +34,20 @@ public class DriiveTeleop extends OpMode {
     }
 
     public void init_loop() {
-        driving.gyro(Math.toRadians(-robot.angles.thirdAngle));
+        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
         TelemetryPacket packet = new TelemetryPacket();
         driving.updateTelemetry(packet);
         dashboard.sendTelemetryPacket(packet);
     }
 
     public void loop() {
-        double currentAngle = Math.toRadians(-robot.angles.thirdAngle);
+        double currentAngle = Math.toRadians(robot.angles.thirdAngle);
 
         // -- DRIVING --
 
         robot.updateGyro();
 
-        driving.cartesian(gamepad1.left_stick_x, gamepad1.left_stick_y, -gamepad1.right_stick_x);
+        driving.cartesian(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         driving.gyro(currentAngle);
         driving.driive();
 

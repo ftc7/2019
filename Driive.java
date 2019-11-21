@@ -101,7 +101,6 @@ class Driive {
      */
     void polarAuto(double r, double theta, double distance, TeleAuto callback) {
         this.r = r;
-        this.theta = theta;
 
         boolean righteousPrev = righteous;
         boolean fieldCentricPrev = fieldCentric;
@@ -180,8 +179,9 @@ class Driive {
      */
     void driive() {
         // Accounts for rotation using gyro values (if field centric)
+        double localtheta = theta;
         if(fieldCentric) {
-            theta += (currentAngle + zero);
+            localtheta += (currentAngle + zero);
         }
 
         // Code for automated turning
@@ -214,8 +214,8 @@ class Driive {
 
         // Send power to wheels
         for(int i = 0; i != wheels.length; i++) {
-            wheels[i].setPower(Math.sin(wheelAngles[i] - theta) * r + turn);
-            wheelPowers[i] = Math.sin(wheelAngles[i] - theta) * r + turn;
+            wheels[i].setPower(Math.sin(wheelAngles[i] - localtheta) * r + turn);
+            wheelPowers[i] = Math.sin(wheelAngles[i] - localtheta) * r + turn;       // Telemetry
         }
     }
 
@@ -232,6 +232,8 @@ class Driive {
         packet.put("setAngle", setAngle);
         packet.put("turn", turn);
         packet.put("turning", turning);
+        packet.put("fieldCentric", fieldCentric);
+        packet.put("righteous", righteous);
         for(int i = 0; i != wheelPowers.length; i++) {
             packet.put("wheel power " + i, wheelPowers[i]);
         }

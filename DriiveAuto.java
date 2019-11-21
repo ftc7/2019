@@ -28,5 +28,7 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
 
     public void sendPacket(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
+        robot.updateGyro();
+        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
     }
 }
