@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -19,6 +21,11 @@ class Blinky {
 
     CRServo leftintake = null;
     CRServo rightintake = null;
+    DcMotor track = null;
+    DcMotor sidelift = null;
+    DcMotor frontlift = null;
+    CRServo frontliftgrab = null;
+    Servo sideliftgrab = null;
 
     BNO055IMU imu;
     Orientation angles;
@@ -27,9 +34,7 @@ class Blinky {
 
     HardwareMap hwMap = null;
 
-    Blinky(){
-
-    }
+    Blinky(){}
 
     void init(HardwareMap ahwMap) {
         hwMap = ahwMap;
@@ -41,14 +46,19 @@ class Blinky {
 
         leftintake = ahwMap.crservo.get("leftintake");
         rightintake = ahwMap.crservo.get("rightintake");
-
-        /*three.setDirection(DcMotor.Direction.REVERSE);
-        four.setDirection(DcMotor.Direction.REVERSE);*/
+        track = ahwMap.dcMotor.get("track");
+        sidelift = ahwMap.dcMotor.get("sidelift");
+        frontlift = ahwMap.dcMotor.get("frontlift");
+        frontliftgrab = ahwMap.crservo.get("frontliftgrab");
+        sideliftgrab = ahwMap.servo.get("sideliftgrab");
 
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         three.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         four.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        sidelift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        track.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
