@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -59,6 +60,14 @@ class Blinky {
         frontlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         sidelift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         track.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        track.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;

@@ -85,7 +85,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@Config
+//@Config
 class PhonePosition {
     public static int phoneX = 0;
     public static int phoneY = 0;

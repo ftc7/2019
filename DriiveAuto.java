@@ -24,6 +24,7 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         waitForStart();
 
         driving.polarAuto(1, 0, 1000, this);
+        driving.polarAuto(1, Math.PI, 1000, this);
     }
 
     public void sendPacket(TelemetryPacket packet) {

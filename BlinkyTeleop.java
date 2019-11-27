@@ -92,8 +92,8 @@ public class BlinkyTeleop extends OpMode {
         if(gamepad2.y) frontside = true;
 
         // Lift up/down based on frontside
-        if(frontside) robot.frontlift.setPower(gamepad2.left_stick_y / 3);
-        else robot.sidelift.setPower(gamepad2.left_stick_y / 3);
+        if(frontside) robot.frontlift.setPower(gamepad2.left_stick_y / 9);
+        else robot.sidelift.setPower(gamepad2.left_stick_y / 9);
 
         // Right stick X controls current lift grabber
         if(frontside) robot.frontliftgrab.setPower(gamepad2.right_stick_x);
@@ -117,6 +117,22 @@ public class BlinkyTeleop extends OpMode {
         packet.put("speed", driving.speed);
 
         packet.put("frontside", frontside);
+
+
+        packet.put("power.frontlift", robot.frontlift.getPower());
+        packet.put("position.frontlift", robot.frontlift.getCurrentPosition());
+        packet.put("power.sidelift", robot.sidelift.getPower());
+        packet.put("position.sidelift", robot.sidelift.getCurrentPosition());
+        packet.put("power.track", robot.track.getPower());
+        packet.put("position.track", robot.track.getCurrentPosition());
+        //packet.put("one.power", robot.one.getPower());
+        packet.put("position.one", robot.one.getCurrentPosition());
+        //packet.put("two.power", robot.two.getPower());
+        packet.put("position.two", robot.two.getCurrentPosition());
+        //packet.put("three.power", robot.three.getPower());
+        packet.put("position.three", robot.three.getCurrentPosition());
+        //packet.put("four.power", robot.four.getPower());
+        packet.put("position.four", robot.four.getCurrentPosition());
 
         driving.updateTelemetry(packet);
 
