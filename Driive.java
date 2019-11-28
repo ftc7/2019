@@ -101,6 +101,7 @@ class Driive {
      */
     void polarAuto(double r, double theta, double distance, TeleAuto callback) {
         this.r = r;
+        this.theta = theta;
 
         boolean righteousPrev = righteous;
         boolean fieldCentricPrev = fieldCentric;
@@ -132,6 +133,9 @@ class Driive {
 
             if (total > distance) break;
         }
+        this.r = 0;
+        driive();
+
         fieldCentric = fieldCentricPrev;
         righteous = righteousPrev;
     }

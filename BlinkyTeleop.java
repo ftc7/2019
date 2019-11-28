@@ -20,6 +20,7 @@ public class BlinkyTeleop extends OpMode {
 
     private double angle1 = 0.0;
     private boolean frontside = false;
+    private double sideliftspeed = 1;
 
     public void init() {
         robot.init(hardwareMap);
@@ -92,13 +93,17 @@ public class BlinkyTeleop extends OpMode {
         if(gamepad2.y) frontside = true;
 
         // Lift up/down based on frontside
-        if(frontside) robot.frontlift.setPower(gamepad2.left_stick_y / 9);
-        else robot.sidelift.setPower(gamepad2.left_stick_y / 9);
+        if(frontside) robot.frontlift.setPower(gamepad2.left_stick_y / 6);
+        else robot.sidelift.setPower(gamepad2.left_stick_y * sideliftspeed);
+
+        // Side lift speed from A/B
+        if(gamepad2.a) sideliftspeed = 1;
+        if(gamepad2.b) sideliftspeed = .1;
 
         // Right stick X controls current lift grabber
         if(frontside) robot.frontliftgrab.setPower(gamepad2.right_stick_x);
-        else if(gamepad2.right_stick_x < 0) robot.sideliftgrab.setPosition(0);
-        else if(gamepad2.right_stick_x > 0) robot.sideliftgrab.setPosition(1);
+        else if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
+        else if(gamepad2.right_stick_y > 0) robot.sideliftgrab.setPosition(0.6);
 
         // -- TELEMETRY --
 
