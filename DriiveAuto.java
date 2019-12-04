@@ -24,11 +24,11 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         waitForStart();
 
         driving.polarAuto(1, 0, 2000, this);
-        //sleep(1000);
-        //driving.polarAuto(1, Math.PI/2, 2000, this);
+        sleep(1000);
+        driving.polarAuto(1, Math.PI/2, 2000, this);
     }
 
-    public void sendPacket(TelemetryPacket packet) {
+    public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
         driving.gyro(Math.toRadians(robot.angles.thirdAngle));

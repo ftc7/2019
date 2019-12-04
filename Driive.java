@@ -129,7 +129,7 @@ class Driive {
 
             updateTelemetry(packet);
             packet.put("total", total);
-            callback.sendPacket(packet);
+            callback.updateAuto(packet);
 
             if (total > distance) break;
         }
@@ -258,6 +258,6 @@ class Driive {
 }
 
 interface TeleAuto {
-    void sendPacket(TelemetryPacket packet);
+    void updateAuto(TelemetryPacket packet);
     boolean opModeIsActive();
 }
