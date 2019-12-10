@@ -188,8 +188,9 @@ class SkystoneNav {
         }
     }
 
-    void activateVuforia() {
+    void activateVuforia(boolean flash) {
         targetsSkyStone.activate();
+        com.vuforia.CameraDevice.getInstance().setFlashTorchMode(flash);
     }
 
     void deactivateVuforia() {

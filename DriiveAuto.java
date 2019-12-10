@@ -25,9 +25,11 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         } catch(Exception e) {}
 
         vuforia.initVuforia(hardwareMap, dashboard);
-        vuforia.activateVuforia();
+        vuforia.activateVuforia(true);
 
         waitForStart();
+
+        driving.polarAuto(0.7, Math.PI/2, 500, this);
 
         while(opModeIsActive()){
             TelemetryPacket packet = new TelemetryPacket();
@@ -40,11 +42,23 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
                 packet.put("pitch", vuforia.rotation.secondAngle);
                 packet.put("heading", vuforia.rotation.thirdAngle);
 
+                if(vuforia.translation.get(1) > 0) {
+                    packet.put("position", 3);
+                } else if(vuforia.translation.get(1) / mmPerInch > -10) {
+                    packet.put("position", 2);
+                } else {
+                    packet.put("position", 1);
+                }
+
                 packet.fieldOverlay()
                         .setStrokeWidth(1)
                         .setStroke("black")
                         .fillCircle(vuforia.translation.get(0) / mmPerInch, vuforia.translation.get(1) / mmPerInch, 5)
                         .setFill("black");
+
+                //packet.put()
+            } else {
+                packet.put("position", 1);
             }
 
             dashboard.sendTelemetryPacket(packet);
