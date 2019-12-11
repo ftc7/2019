@@ -27,11 +27,11 @@ class Blinky {
     DcMotor frontlift = null;
     CRServo frontliftgrab = null;
     Servo sideliftgrab = null;
+    Servo platform = null;
 
     BNO055IMU imu;
     Orientation angles;
     Acceleration gravity;
-    float[] dangles = new float[3];
 
     HardwareMap hwMap = null;
 
@@ -52,6 +52,7 @@ class Blinky {
         frontlift = ahwMap.dcMotor.get("frontlift");
         frontliftgrab = ahwMap.crservo.get("frontliftgrab");
         sideliftgrab = ahwMap.servo.get("sideliftgrab");
+        platform = ahwMap.servo.get("platform");
 
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -80,21 +81,11 @@ class Blinky {
         imu = ahwMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-        gravity  = imu.getGravity();
-
-        dangles[0] = angles.firstAngle;
-        dangles[1] = angles.secondAngle;
-        dangles[2] = angles.thirdAngle;
+        updateGyro();
     }
 
     void updateGyro() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-
-        /*dangles[0] = ((dangles[0] * damping) + angles.firstAngle) / (damping + 1);
-        dangles[1] = ((dangles[1] * damping) + angles.secondAngle) / (damping + 1);
-        dangles[2] = ((dangles[2] * damping) + angles.thirdAngle) / (damping + 1);*/
-
         gravity = imu.getGravity();
     }
 }

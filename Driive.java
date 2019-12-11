@@ -131,7 +131,7 @@ class Driive {
             packet.put("total", total);
             callback.updateAuto(packet);
 
-            if (total > distance) break;
+            if (total > distance && turn == 0) break;
         }
         this.r = 0;
         driive();
