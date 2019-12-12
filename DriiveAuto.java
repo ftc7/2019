@@ -30,13 +30,13 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
 
         waitForStart();
 
-        driving.polarAuto(0.7, Math.PI / 2, 500, this);
+        driving.polarAuto(0.7, Math.PI / 2, 600, this);
 
         double looptime = getRuntime();
 
-        int position;
+        int position = 0;
 
-        while(opModeIsActive() && getRuntime() < looptime + 2) {
+        while(opModeIsActive() && getRuntime() < looptime + 1) {
             TelemetryPacket packet = new TelemetryPacket();
 
             // Locates the block and determines which position it is in
@@ -63,38 +63,47 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         }
 
         robot.sideliftgrab.setPosition(0);
+        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition());
         robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(500);
 
         switch(position) {
         case 1:     // block on left
-            driving.polarAuto(0.5, Math.PI * 3/2, 200, this);       // in front of block
+            driving.polarAuto(0.5, 0, 375, this);       // in front of block
             grabBlock();
-            driving.polarAuto(0.5, Math.PI * 3 / 2, -200, this);    // to standard position
+            driving.polarAuto(1, Math.PI, 425, this);    // to standard position
             break;
         case 2:
-            driving.polarAuto(0.5, Math.PI * 3/2, 50, this);       // in front of block
+            driving.polarAuto(0.5, 0, 100, this);       // in front of block
             grabBlock();
-            driving.polarAuto(0.5, Math.PI * 3 / 2, -50, this);    // to standard position
+            driving.polarAuto(1, Math.PI, 150, this);    // to standard position
             break;
         case 3:
-            driving.polarAuto(0.5, Math.PI * 3/2, -50, this);       // in front of block
+            driving.polarAuto(0.5, Math.PI, 50, this);       // in front of block
             grabBlock();
-            driving.polarAuto(0.5, Math.PI * 3 / 2, 0, this);    // to standard position
+            driving.polarAuto(1, Math.PI, 0, this);       // to standard position
             break;
         }
 
-        driving.turnAbs(Math.PI);
-        driving.polarAuto(1, Math.PI, 2000, this);   // Turns to the position set with turnAbs
+        //driving.turnAbs(Math.PI);
+        driving.polarAuto(1, 3.1415, 2000, this);   // Turns to the position set with turnAbs while driving across field
+
+        looptime = getRuntime();
+
+        while(opModeIsActive() && getRuntime() < looptime + 2) {
+            TelemetryPacket packet = new TelemetryPacket();
+            vuforiaTelemetry(vuforia, packet);
+        }
     }
 
     void grabBlock() {
-        driving.polarAuto(0.4, 0, 200, this);                   // to block
+        driving.polarAuto(0.4, Math.PI / 2, 500, this);                   // to block
         robot.sideliftgrab.setPosition(0.6);
         sleep(500);
-        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() + 80);
+        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() + 100);
         robot.sidelift.setPower(0.5);
         sleep(500);
-        driving.polarAuto(0.4, 0, -200, this);                  // away from block
+        driving.polarAuto(0.4, Math.PI * 3/2, 500, this);                  // away from block
     }
 
     void vuforiaTelemetry(SkystoneNav instance, TelemetryPacket packet) {

@@ -105,6 +105,10 @@ public class BlinkyTeleop extends OpMode {
         else if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
         else if(gamepad2.right_stick_y > 0) robot.sideliftgrab.setPosition(0.6);
 
+        // D-pad up/down controls platform grabber
+        if(gamepad2.dpad_up) robot.platform.setPosition(0.4);
+        else if(gamepad2.dpad_down) robot.platform.setPosition(0.9);
+
         // -- TELEMETRY --
 
         telemetry.addData("DRIVING", "");
