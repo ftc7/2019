@@ -103,20 +103,24 @@ class Driive {
         this.r = r;
         this.theta = theta;
 
+        // Records previous preferences
         boolean righteousPrev = righteous;
         boolean fieldCentricPrev = fieldCentric;
         fieldCentric = true;
         righteous = true;
 
+        // Gets initial wheel positions
         double[] wheelDistances = new double[wheels.length];
         for(int i = 0; i < wheels.length; i++) {
             wheelDistances[i] = wheels[i].getCurrentPosition();
         }
 
         while(callback.opModeIsActive()) {
+            // Drive
             driive();
             TelemetryPacket packet = new TelemetryPacket();
 
+            // Find the current total average delta
             double total = 0;
             for(int i = 0; i < wheels.length; i++) {
                 packet.put("wheel position " + i, wheels[i].getCurrentPosition());
@@ -127,15 +131,20 @@ class Driive {
             }
             total /= wheels.length;
 
+            // Add data to telemetry
             updateTelemetry(packet);
             packet.put("total", total);
             callback.updateAuto(packet);
 
-            if (total > distance && turn == 0) break;
+            // Stop driving
+            if (Math.abs(total) > Math.abs(distance) && turn == 0) break;
         }
+
+        // Stop driving
         this.r = 0;
         driive();
 
+        // Resets to previous values
         fieldCentric = fieldCentricPrev;
         righteous = righteousPrev;
     }
@@ -201,6 +210,7 @@ class Driive {
 
             double min = 0.05;
             double max = 0.10;
+
             // Avoids low power/squeaking motors
             if(Math.abs(turn) < min) turn = 0;
             if(turn < max && turn > min) turn = max;

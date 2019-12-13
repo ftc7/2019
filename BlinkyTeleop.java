@@ -31,6 +31,10 @@ public class BlinkyTeleop extends OpMode {
             driving.init(wheels, angles);
         } catch(Exception e) {
         }
+        robot.sidelift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.frontlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         telemetry.addData("Initialized", "Initialized");
         telemetry.update();
     }
@@ -93,8 +97,48 @@ public class BlinkyTeleop extends OpMode {
         if(gamepad2.y) frontside = true;
 
         // Lift up/down based on frontside
-        if(frontside) robot.frontlift.setPower(gamepad2.left_stick_y / 6);
-        else robot.sidelift.setPower(gamepad2.left_stick_y * sideliftspeed);
+        double tentativesideliftpower = gamepad2.left_stick_y * sideliftspeed;
+        if(frontside) {
+            //robot.frontlift.setPower(gamepad2.left_stick_y / 6);
+            if(gamepad2.left_stick_button) {
+                robot.frontlift.setTargetPosition(0);
+                robot.frontlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.frontlift.setPower(1 / 6);
+            }
+            else if(gamepad2.left_stick_y != 0) {
+                robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                if((robot.frontlift.getCurrentPosition() < 0 && gamepad2.left_stick_y < 0) ||
+                        (robot.frontlift.getCurrentPosition() > 12000 && gamepad2.left_stick_y > 0)) {
+                    robot.frontlift.setPower(0);
+                }
+                else {
+                    robot.frontlift.setPower(gamepad2.left_stick_y / 6);
+                }
+            }
+            else {
+                robot.frontlift.setPower(0);
+            }
+        }
+        else {
+            if(gamepad2.left_stick_button) {
+                robot.sidelift.setTargetPosition(0);
+                robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.sidelift.setPower(1);
+            }
+            else if(tentativesideliftpower != 0) {
+                robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                if((robot.sidelift.getCurrentPosition() > 0 && tentativesideliftpower > 0) ||
+                        (robot.sidelift.getCurrentPosition() < -4000 && tentativesideliftpower < 0)) {
+                    robot.sidelift.setPower(0);
+                }
+                else {
+                    robot.sidelift.setPower(tentativesideliftpower);
+                }
+            }
+            else {
+                robot.sidelift.setPower(0);
+            }
+        }
 
         // Side lift speed from A/B
         if(gamepad2.a) sideliftspeed = 1;
@@ -106,8 +150,8 @@ public class BlinkyTeleop extends OpMode {
         else if(gamepad2.right_stick_y > 0) robot.sideliftgrab.setPosition(0.6);
 
         // D-pad up/down controls platform grabber
-        if(gamepad2.dpad_up) robot.platform.setPosition(0.4);
-        else if(gamepad2.dpad_down) robot.platform.setPosition(0.9);
+        if(gamepad2.dpad_up) robot.platform.setPosition(0.2);
+        else if(gamepad2.dpad_down) robot.platform.setPosition(0.65);
 
         // -- TELEMETRY --
 
