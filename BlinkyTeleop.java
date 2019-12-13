@@ -61,6 +61,10 @@ public class BlinkyTeleop extends OpMode {
 
         if(gamepad1.left_bumper) angle1 = currentAngle;
         if(gamepad1.right_bumper) driving.turnAbs(angle1);
+        if(gamepad1.dpad_up) driving.turnabs(0);
+	else if(gamepad1.dpad_down) driving.turnabs(pi);
+	else if(gamepad1.dpad_left) driving.turnabs(pi / 2);
+	else if(gamepad1.dpad_up) driving.turnabs(pi * 3 / 2);
 
         if(gamepad1.x && !prev1.x) driving.fieldCentric = !driving.fieldCentric;
         if(gamepad1.y && !prev1.y) driving.righteous = !driving.righteous;
