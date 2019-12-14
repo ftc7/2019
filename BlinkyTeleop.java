@@ -21,6 +21,7 @@ public class BlinkyTeleop extends OpMode {
     private double angle1 = 0.0;
     private boolean frontside = false;
     private double sideliftspeed = 1;
+    private boolean runningsidedown = false;
 
     public void init() {
         robot.init(hardwareMap);
@@ -61,10 +62,10 @@ public class BlinkyTeleop extends OpMode {
 
         if(gamepad1.left_bumper) angle1 = currentAngle;
         if(gamepad1.right_bumper) driving.turnAbs(angle1);
-        if(gamepad1.dpad_up) driving.turnabs(0);
-	else if(gamepad1.dpad_down) driving.turnabs(pi);
-	else if(gamepad1.dpad_left) driving.turnabs(pi / 2);
-	else if(gamepad1.dpad_up) driving.turnabs(pi * 3 / 2);
+        if(gamepad1.dpad_up) driving.turnAbs(0);
+        else if(gamepad1.dpad_down) driving.turnAbs(Math.PI);
+        else if(gamepad1.dpad_left) driving.turnAbs(Math.PI / 2);
+        else if(gamepad1.dpad_right) driving.turnAbs(Math.PI * 3 / 2);
 
         if(gamepad1.x && !prev1.x) driving.fieldCentric = !driving.fieldCentric;
         if(gamepad1.y && !prev1.y) driving.righteous = !driving.righteous;
@@ -101,45 +102,37 @@ public class BlinkyTeleop extends OpMode {
         if(gamepad2.y) frontside = true;
 
         // Lift up/down based on frontside
-        double tentativesideliftpower = gamepad2.left_stick_y * sideliftspeed;
+        double sideliftpower = gamepad2.left_stick_y * sideliftspeed;
+        double sideliftpos = robot.sidelift.getCurrentPosition();
+        // Front lift
         if(frontside) {
-            //robot.frontlift.setPower(gamepad2.left_stick_y / 6);
-            if(gamepad2.left_stick_button) {
-                robot.frontlift.setTargetPosition(0);
-                robot.frontlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.frontlift.setPower(1 / 6);
-            }
-            else if(gamepad2.left_stick_y != 0) {
-                robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                if((robot.frontlift.getCurrentPosition() < 0 && gamepad2.left_stick_y < 0) ||
-                        (robot.frontlift.getCurrentPosition() > 12000 && gamepad2.left_stick_y > 0)) {
-                    robot.frontlift.setPower(0);
-                }
-                else {
-                    robot.frontlift.setPower(gamepad2.left_stick_y / 6);
-                }
-            }
-            else {
+            if((robot.frontlift.getCurrentPosition() > 0 && gamepad2.left_stick_y > 0) ||
+                    (robot.frontlift.getCurrentPosition() < -4000 && gamepad2.left_stick_y < 0)) {
                 robot.frontlift.setPower(0);
             }
+            else robot.frontlift.setPower(gamepad2.left_stick_y / 6);
         }
+        // Side lift
         else {
-            if(gamepad2.left_stick_button) {
+            // If the joystick is being used
+            if(sideliftpower != 0) {
+                runningsidedown = false;
+
+                robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                // If it's outside the range, don't run
+                if((sideliftpos > 0 && sideliftpower > 0) || (sideliftpos < -4000 && sideliftpower < 0)) {
+                    robot.sidelift.setPower(0);
+                }
+                // Otherwise run
+                else robot.sidelift.setPower(sideliftpower);
+            }
+            else if(gamepad2.left_stick_button) {
                 robot.sidelift.setTargetPosition(0);
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.sidelift.setPower(1);
+                runningsidedown = true;
             }
-            else if(tentativesideliftpower != 0) {
-                robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                if((robot.sidelift.getCurrentPosition() > 0 && tentativesideliftpower > 0) ||
-                        (robot.sidelift.getCurrentPosition() < -4000 && tentativesideliftpower < 0)) {
-                    robot.sidelift.setPower(0);
-                }
-                else {
-                    robot.sidelift.setPower(tentativesideliftpower);
-                }
-            }
-            else {
+            else if(!runningsidedown) {
                 robot.sidelift.setPower(0);
             }
         }

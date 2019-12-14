@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -21,6 +22,13 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
+
+@Config
+class PhonePosition {
+    public static int phoneX = 0;
+    public static int phoneY = 0;
+    public static int phoneZ = 0;
+}
 
 class SkystoneNav {
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
@@ -174,9 +182,9 @@ class SkystoneNav {
 
         // Next, translate the camera lens to where it is on the robot.
         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = PhonePosition.phoneY * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
-        final float CAMERA_VERTICAL_DISPLACEMENT = PhonePosition.phoneZ * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float CAMERA_LEFT_DISPLACEMENT     = PhonePosition.phoneX * mmPerInch;     // eg: Camera is ON the robot's center line
+        final float CAMERA_FORWARD_DISPLACEMENT  = PhonePosition.phoneY;   // eg: Camera is 4 Inches in front of robot center
+        final float CAMERA_VERTICAL_DISPLACEMENT = PhonePosition.phoneZ;   // eg: Camera is 8 Inches above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = PhonePosition.phoneX;     // eg: Camera is ON the robot's center line
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -188,8 +196,11 @@ class SkystoneNav {
         }
     }
 
-    void activateVuforia(boolean flash) {
+    void activateVuforia() {
         targetsSkyStone.activate();
+    }
+
+    void setFlash(boolean flash) {
         com.vuforia.CameraDevice.getInstance().setFlashTorchMode(flash);
     }
 

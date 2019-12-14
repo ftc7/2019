@@ -116,8 +116,6 @@ class Driive {
         }
 
         while(callback.opModeIsActive()) {
-            // Drive
-            driive();
             TelemetryPacket packet = new TelemetryPacket();
 
             // Find the current total average delta
@@ -135,6 +133,10 @@ class Driive {
             updateTelemetry(packet);
             packet.put("total", total);
             callback.updateAuto(packet);
+
+            // Drive
+            this.turn = 0;
+            driive();
 
             // Stop driving
             if (Math.abs(total) > Math.abs(distance) && turn == 0) break;
