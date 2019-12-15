@@ -6,12 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 
-@Autonomous(name="Red")
-public class DriiveAuto extends LinearOpMode implements TeleAuto {
+@Autonomous(name="Blue")
+public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Driive driving = new Driive();
@@ -34,9 +32,6 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         vuforia.activateVuforia();
         vuforia.setFlash(true);
 
-        telemetry.addData("ready", "ready");
-        updateTelemetry(telemetry);
-
         /*while(!isStarted()) {
             TelemetryPacket packet = new TelemetryPacket();
             if(vuforia.updateVuforia()) {
@@ -44,8 +39,10 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
             }
             dashboard.sendTelemetryPacket(packet);
         }*/
+        telemetry.addData("ready", "ready");
+        updateTelemetry(telemetry);
+
         waitForStart();
-        driving.resetZero();
 
         driving.polarAuto(autospeed, Math.PI / 2, 400 * clicksPerMm, this);                 // Drive to look at the blocks
 
@@ -62,11 +59,11 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
             // Locates the block and determines which position it is in
             if(vuforia.updateVuforia()) {
                 vuforiaTelemetry(vuforia, packet);
-                if(vuforia.translation.get(1) > 0) {
+                if(vuforia.translation.get(1) < 0) {
                     position = 3;
                     packet.put("position", 3);
                 }
-                else if(vuforia.translation.get(1) > -205) {
+                else if(vuforia.translation.get(1) < 205) {
                     position = 2;
                     packet.put("position", 2);
                 }
@@ -95,17 +92,17 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         // Drive to block
         switch(position) {
             case 1:     // block on left
-                driving.polarAuto(0.5, 0, 310 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.5, Math.PI, 220 * clicksPerMm, this);       // in front of block
                 grabBlock();
-                driving.polarAuto(0.5, Math.PI, -360 * clicksPerMm, this);    // to standard position
+                driving.polarAuto(0.5, 0, -490 * clicksPerMm, this);    // to standard position
                 break;
             case 2:
-                driving.polarAuto(0.5, 0, 50 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.5, Math.PI, 30 * clicksPerMm, this);       // in front of block
                 grabBlock();
-                driving.polarAuto(0.5, Math.PI, -100 * clicksPerMm, this);    // to standard position
+                driving.polarAuto(0.5, 0, -120 * clicksPerMm, this);    // to standard position
                 break;
             case 3:
-                driving.polarAuto(0.5, Math.PI, -30 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.5, 0, -60 * clicksPerMm, this);       // in front of block
                 grabBlock();
                 //driving.polarAuto(0.5, Math.PI * 3 / 2, 0, this);    // to standard position
                 break;
@@ -114,30 +111,36 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         // Turns to the position set with turnAbs while driving across field
         //driving.turnAbs(pi);
         //driving.polarAuto(0, 0, 0, this);
-        driving.turnAbs(pi);
 
         // Drive across the field, drop
-        driving.polarAuto(autospeed, pi, 1150 * clicksPerMm, this);
+        driving.polarAuto(autospeed, 0, 1150 * clicksPerMm, this);
         vuforia.setFlash(false);
-        robot.sideliftgrab.setPosition(0);
+        driving.turnAbs(pi);
+        driving.polarAuto(0, 0, 0, this);
         //robot.leftintake.setPower(-1);
         //robot.rightintake.setPower(1);
 
         // Drive to the foundation
-        driving.polarAuto(autospeed, 2.4, 800 * clicksPerMm, this);
+        driving.polarAuto(autospeed, 0.4, 600 * clicksPerMm, this);
         // Grab the platform
         robot.platform.setPosition(0.9);
 
         sleep(300);
 
         // Turn with the platform
-        driving.polarAutoTurn(autospeed, pi/2, 1300 * clicksPerMm, this, 0.5);
+        driving.polarAutoTurn(autospeed, pi/2, -1200 * clicksPerMm, this, -0.5);
 
-        driving.polarAutoTurn(autospeed, 3*pi/2, 900 * clicksPerMm, this, -0.2);
+        driving.polarAutoTurn(autospeed, 3*pi/2, -1000 * clicksPerMm, this, 0.0);
 
         robot.platform.setPosition(0.4);
+        sleep(200);
 
-        driving.polarAuto(autospeed, 0.5, 1100 * clicksPerMm, this);
+        // Park
+        driving.polarAuto(autospeed, 3 * pi / 4, 600 * clicksPerMm, this);
+
+        robot.sideliftgrab.setPosition(0);
+
+        driving.polarAuto(autospeed, pi, 500 * clicksPerMm, this);
     }
 
     /*private void driveAnywhere(double x, double y, double speed, SkystoneNav vuforia) {
@@ -160,13 +163,13 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
     }*/
 
     private void grabBlock() {
-        driving.polarAuto(0.4, Math.PI / 2, 310 * clicksPerMm, this);                   // to block
+        driving.polarAuto(0.4, Math.PI / 2, 330 * clicksPerMm, this);                   // to block
         robot.sideliftgrab.setPosition(0.6);
         sleep(500);
         robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() + 100);
         robot.sidelift.setPower(0.5);
         sleep(500);
-        driving.polarAuto(0.4, Math.PI * 3/2, 310 * clicksPerMm, this);                  // away from block
+        driving.polarAuto(0.4, Math.PI * 3/2, 200 * clicksPerMm, this);                  // away from block
     }
 
     private void vuforiaTelemetry(SkystoneNav instance, TelemetryPacket packet) {
