@@ -97,7 +97,7 @@ class Driive {
      *
      * @param r Speed
      * @param theta Direction in radians from zero
-     * @param distance Distance in ____
+     * @param distance Distance in clicks
      */
     void polarAuto(double r, double theta, double distance, TeleAuto callback) {
         this.r = r;
@@ -140,6 +140,66 @@ class Driive {
 
             // Stop driving
             if (Math.abs(total) > Math.abs(distance) && turn == 0) break;
+        }
+
+        // Stop driving
+        this.r = 0;
+        driive();
+
+        // Resets to previous values
+        fieldCentric = fieldCentricPrev;
+        righteous = righteousPrev;
+    }
+
+    /**
+     * Drives in a given direction at a given speed for a given distance, using encoders.
+     * Blocking function, will not exit until drive is completed.
+     *
+     * @param r Speed
+     * @param theta Direction in radians from zero
+     * @param distance Distance in clicks
+     */
+    void polarAutoTurn(double r, double theta, double distance, TeleAuto callback, double turn) {
+        this.r = r;
+        this.theta = theta;
+
+        // Records previous preferences
+        boolean righteousPrev = righteous;
+        boolean fieldCentricPrev = fieldCentric;
+        fieldCentric = false;
+        righteous = false;
+
+        // Gets initial wheel positions
+        double[] wheelDistances = new double[wheels.length];
+        for(int i = 0; i < wheels.length; i++) {
+            wheelDistances[i] = wheels[i].getCurrentPosition();
+        }
+
+        while(callback.opModeIsActive()) {
+            TelemetryPacket packet = new TelemetryPacket();
+
+            // Find the current total average delta
+            double total = 0;
+            for(int i = 0; i < wheels.length; i++) {
+                packet.put("wheel position " + i, wheels[i].getCurrentPosition());
+                double currentWheelSin = Math.sin(wheelAngles[i] - theta);
+                double wheelDistance = wheels[i].getCurrentPosition() - wheelDistances[i];
+                double wheelRobotDistance = currentWheelSin * wheelDistance;
+                total += wheelRobotDistance;
+            }
+            total /= wheels.length;
+
+            // Add data to telemetry
+            updateTelemetry(packet);
+            packet.put("total", total);
+            callback.updateAuto(packet);
+
+            // Drive
+            this.turn = turn;
+            driive();
+
+            // Stop driving
+            if(Math.abs(total) > Math.abs(distance)) break;
         }
 
         // Stop driving
