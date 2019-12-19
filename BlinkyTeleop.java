@@ -120,7 +120,7 @@ public class BlinkyTeleop extends OpMode {
 
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 // If it's outside the range, don't run
-                if((sideliftpos > 0 && sideliftpower > 0) || (sideliftpos < -4000 && sideliftpower < 0)) {
+                if((sideliftpos > 0 && sideliftpower > 0) /*|| (sideliftpos < -4000 && sideliftpower < 0)*/) {
                     robot.sidelift.setPower(0);
                 }
                 // Otherwise run

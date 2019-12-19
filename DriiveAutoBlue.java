@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 
-@Autonomous(name="Blue")
+@Autonomous(name="Blue", group="blue")
 public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -44,7 +44,7 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
 
         waitForStart();
 
-        driving.polarAuto(autospeed, Math.PI / 2, 400 * clicksPerMm, this);                 // Drive to look at the blocks
+        driving.polarAuto(autospeed, Math.PI / 2, 450 * clicksPerMm, this);                 // Drive to look at the blocks
 
         // Open the side lift grabber
         robot.sideliftgrab.setPosition(0);
