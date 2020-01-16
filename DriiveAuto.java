@@ -131,7 +131,8 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         sleep(300);
 
         // Turn with the platform
-        driving.polarAutoTurn(autospeed, pi/2, 1300 * clicksPerMm, this, 0.5);
+        //driving.polarAutoTurn(autospeed, pi/2, 1300 * clicksPerMm, this, 0.5);
+        driving.polarAutoTurn(autospeed, pi/2, Math.PI / 2, this, 0.5);
 
         driving.polarAutoTurn(autospeed, 3*pi/2, 900 * clicksPerMm, this, -0.2);
 

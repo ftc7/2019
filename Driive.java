@@ -159,7 +159,7 @@ class Driive {
      * @param theta Direction in radians from zero
      * @param distance Distance in clicks
      */
-    void polarAutoTurn(double r, double theta, double distance, TeleAuto callback, double turn) {
+    void polarAutoTurn(double r, double theta, double delta, TeleAuto callback, double turn) {
         this.r = r;
         this.theta = theta;
 
@@ -178,7 +178,7 @@ class Driive {
         while(callback.opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
 
-            // Find the current total average delta
+            /*// Find the current total average delta
             double total = 0;
             for(int i = 0; i < wheels.length; i++) {
                 packet.put("wheel position " + i, wheels[i].getCurrentPosition());
@@ -187,11 +187,11 @@ class Driive {
                 double wheelRobotDistance = currentWheelSin * wheelDistance;
                 total += wheelRobotDistance;
             }
-            total /= wheels.length;
+            total /= wheels.length;*/
 
             // Add data to telemetry
             updateTelemetry(packet);
-            packet.put("total", total);
+            //packet.put("total", total);
             callback.updateAuto(packet);
 
             // Drive
@@ -199,7 +199,8 @@ class Driive {
             driive();
 
             // Stop driving
-            if(Math.abs(total) > Math.abs(distance)) break;
+            if(turn > 0 && wrap(currentAngle - setAngle) > 0) break;
+            else if(wrap(currentAngle - setAngle) < 0) break;
         }
 
         // Stop driving
