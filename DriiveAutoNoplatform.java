@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,6 +13,7 @@ public class DriiveAutoNoplatform extends LinearOpMode implements TeleAuto {
     private SkystoneNav vuforia = new SkystoneNav();
     private double clicksPerMm = 1.64;
     private double autospeed = 0.8;
+    private FtcDashboard dashboard = FtcDashboard.getInstance();
 
     public void runOpMode() {
 
@@ -23,7 +26,7 @@ public class DriiveAutoNoplatform extends LinearOpMode implements TeleAuto {
         } catch(Exception e) {
         }
 
-        vuforia.initVuforia(hardwareMap);
+        vuforia.initVuforia(hardwareMap, dashboard);
         vuforia.activateVuforia();
         vuforia.setFlash(true);
 
@@ -153,10 +156,9 @@ public class DriiveAutoNoplatform extends LinearOpMode implements TeleAuto {
                 .fillCircle(vuforia.translation.get(0) / mmPerInch, vuforia.translation.get(1) / mmPerInch, 5)
                 .setFill("black");
     }*/
-    public void updateAuto() {
+    public void updateAuto(TelemetryPacket packet) {
+        dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
         driving.gyro(Math.toRadians(robot.angles.thirdAngle));
-        telemetry.addData("gyro", robot.angles.thirdAngle);
-        updateTelemetry(telemetry);
     }
 }

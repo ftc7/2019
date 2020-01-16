@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class PlatformBlue extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
+    private FtcDashboard dashboard = FtcDashboard.getInstance();
 
     public void runOpMode() {
         double autospeed = 0.7;
@@ -20,20 +23,24 @@ public class PlatformBlue extends LinearOpMode implements TeleAuto {
             driving.init(wheels, angles);
         } catch(Exception e) {
         }
-        
+
         waitForStart();
-        
+
         driving.polarAuto(autospeed, 3*pi/2, 1000 * 1.6, this);
         robot.platform.setPosition(0.9);
         sleep(500);
         driving.polarAuto(autospeed, pi/2, 900 * 1.6, this);
         robot.platform.setPosition(400);
         driving.polarAuto(autospeed, pi/2, 100 * 1.6, this);
-        
+
         // SIDE SPECIFIC
-        
+
         //driving.polarAuto(autospeed, 0, 500, this);
     }
-    
-    public void updateAuto() {}
+
+    public void updateAuto(TelemetryPacket packet) {
+        dashboard.sendTelemetryPacket(packet);
+        robot.updateGyro();
+        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+    }
 }
