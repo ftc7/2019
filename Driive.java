@@ -244,7 +244,7 @@ class Driive {
      * @param angle The angle to turn to
      */
     void turnAbs(double angle) {
-        setAngle = angle;
+        setAngle = zero + angle;
         turning = true;
     }
 
