@@ -142,25 +142,6 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         driving.polarAuto(autospeed, 0, 500 * clicksPerMm, this);
     }
 
-    /*private void driveAnywhere(double x, double y, double speed, SkystoneNav vuforia) {
-        while(opModeIsActive() && !vuforia.updateVuforia());
-        double dx = x - vuforia.translation.get(0);
-        double dy = y - vuforia.translation.get(1);
-        double theta = Math.atan2(dx, dy);
-        double r = Math.sqrt(dx * dx + dy * dy);
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("dx", dx);
-        packet.put("dy", dy);
-        packet.put("theta", theta);
-        packet.put("r", r);
-        sleep(500);
-        dashboard.sendTelemetryPacket(packet);
-        sleep(5000);
-        //driving.polarAuto(speed, theta, r, this);
-        driving.polarAuto(speed, Math.PI, dx, this);
-        driving.polarAuto(speed, Math.PI/2, dy, this);
-    }*/
-
     private void grabBlock() {
         driving.polarAuto(0.4, Math.PI / 2, 310 * clicksPerMm, this);                   // to block
         robot.sideliftgrab.setPosition(0.6);
