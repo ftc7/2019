@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -35,6 +37,9 @@ class Blinky {
 
     HardwareMap hwMap = null;
 
+    ColorSensor color;
+    DistanceSensor distance;
+
     Blinky(){}
 
     void init(HardwareMap ahwMap) {
@@ -53,6 +58,9 @@ class Blinky {
         frontliftgrab = ahwMap.crservo.get("frontliftgrab");
         sideliftgrab = ahwMap.servo.get("sideliftgrab");
         platform = ahwMap.servo.get("platform");
+        color = ahwMap.get(ColorSensor.class, "cd_sense");
+        distance = ahwMap.get(DistanceSensor.class, "cd_sense");
+
 
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

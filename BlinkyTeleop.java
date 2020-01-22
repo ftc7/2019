@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
@@ -9,6 +8,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name = "Blinky")
 public class BlinkyTeleop extends OpMode {
@@ -22,6 +23,7 @@ public class BlinkyTeleop extends OpMode {
     private boolean frontside = false;
     private double sideliftspeed = 1;
     private boolean runningsidedown = false;
+    private boolean aligning = false;
 
     public void init() {
         robot.init(hardwareMap);
@@ -56,7 +58,7 @@ public class BlinkyTeleop extends OpMode {
 
         driving.cartesian(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         driving.gyro(currentAngle);
-        driving.driive();
+        if(!aligning) driving.driive();
 
         // -- CONTROLS --
 
@@ -150,6 +152,27 @@ public class BlinkyTeleop extends OpMode {
         if(gamepad2.dpad_up) robot.platform.setPosition(0.2);
         else if(gamepad2.dpad_down) robot.platform.setPosition(0.65);
 
+        // Automatic alignment
+        double distance = robot.distance.getDistance(DistanceUnit.CM);
+        if(gamepad2.right_stick_button && !frontside && distance < 3 && robot.sideliftgrab.getPosition() == 0) {
+            aligning = true;
+        }
+        if(aligning) {
+            if(distance < 3) {
+                boolean prevFC = driving.fieldCentric;
+                driving.fieldCentric = false;
+                driving.polar(0.2, Math.PI, 0);
+                driving.driive();
+                driving.fieldCentric = prevFC;
+            }
+            else {
+                robot.sideliftgrab.setPosition(0.6);
+                driving.polar(0, 0, 0);
+                driving.driive();
+                aligning = false;
+            }
+        }
+
         // -- TELEMETRY --
 
         telemetry.addData("DRIVING", "");
@@ -183,6 +206,9 @@ public class BlinkyTeleop extends OpMode {
         packet.put("position.three", robot.three.getCurrentPosition());
         //packet.put("four.power", robot.four.getPower());
         packet.put("position.four", robot.four.getCurrentPosition());
+
+        packet.put("distance", robot.distance.getDistance(DistanceUnit.CM));
+        packet.put("aligning", aligning);
 
         driving.updateTelemetry(packet);
 
