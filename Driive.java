@@ -16,6 +16,9 @@ class Driive {
 
     private double[] wheelPowers;
 
+    private DcMotor[] odometers;
+    private double[] odometerAngles;
+
     /**
      * Marks whether the robot's driving is field centric
      * Defaults to true
@@ -63,6 +66,17 @@ class Driive {
         this.wheelAngles = wheelAngles;
         this.zero = zero;
         this.wheelPowers = new double[wheels.length];
+    }
+
+    /**
+     * Initializes the odometers
+     *
+     * @param odometers
+     * @param odometerAngles
+     */
+    void initOdometry(DcMotor[] odometers, double[] odometerAngles) {
+        this.odometers = odometers;
+        this.odometerAngles = odometerAngles;
     }
 
     /**
@@ -294,6 +308,12 @@ class Driive {
             wheels[i].setPower(Math.sin(wheelAngles[i] - localtheta) * r + turn);
             wheelPowers[i] = Math.sin(wheelAngles[i] - localtheta) * r + turn;       // Telemetry
         }
+
+        // find x and y
+        // turn into polar coordinate
+        // account for gyroscope
+        // turn back into cartesian
+        // add to totals
     }
 
     /**
