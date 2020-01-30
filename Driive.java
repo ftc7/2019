@@ -16,8 +16,21 @@ class Driive {
 
     private double[] wheelPowers;
 
-    private DcMotor[] odometers;
-    private double[] odometerAngles;
+    private boolean odometry = false;
+    private DcMotor[] odometers = new DcMotor[3];
+    private double[] odometerPrev = new double[3];
+    private static final int LEFT_ENC = 0;
+    private static final int CENTER_ENC = 1;
+    private static final int RIGHT_ENC = 2;
+
+    private double odometerCPR;
+    private double odometerDiameter;
+    private double lrDist;
+    private double xDist;
+
+    private double odometryX = 0;
+    private double odometryY = 0;
+    private double odometerRot = 0;
 
     /**
      * Marks whether the robot's driving is field centric
@@ -58,7 +71,7 @@ class Driive {
      * @param zero The starting angle of the robot; can be adjusted to change the initial "front"
      * @throws java.lang.Exception - if wheels[] and wheelAngles[] are different lengths
      */
-    void init(DcMotor[] wheels, double[] wheelAngles, double zero) throws Exception{
+    void init(DcMotor[] wheels, double[] wheelAngles, double zero) throws Exception {
         if(wheels.length != wheelAngles.length) {
             throw new java.lang.Exception("Wheels[] and wheel angles[] are different lengths; please check your init code");
         }
@@ -70,13 +83,17 @@ class Driive {
 
     /**
      * Initializes the odometers
+     * Takes left, center, right
+     *            | - |
      *
-     * @param odometers
-     * @param odometerAngles
+     * @param odometers Array of DcMotors for odometry, NOT ACTUAL MOTORS
      */
-    void initOdometry(DcMotor[] odometers, double[] odometerAngles) {
+    void initOdometry(DcMotor[] odometers) throws Exception {
+        if(odometers.length != 3) {
+            throw new java.lang.Exception("Must be three DcMotor objects");
+        }
         this.odometers = odometers;
-        this.odometerAngles = odometerAngles;
+        odometry = true;
     }
 
     /**
@@ -171,7 +188,8 @@ class Driive {
      *
      * @param r Speed
      * @param theta Direction in radians from zero
-     * @param distance Distance in clicks
+     * @param callback this
+     * @param turn Amount to turn
      */
     void polarAutoTurn(double r, double theta, double delta, TeleAuto callback, double turn) {
         this.r = r;
@@ -184,10 +202,10 @@ class Driive {
         righteous = false;
 
         // Gets initial wheel positions
-        double[] wheelDistances = new double[wheels.length];
+        /*double[] wheelDistances = new double[wheels.length];
         for(int i = 0; i < wheels.length; i++) {
             wheelDistances[i] = wheels[i].getCurrentPosition();
-        }
+        }*/
 
         while(callback.opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
@@ -310,6 +328,19 @@ class Driive {
         }
 
         // find x and y
+        double[] odometerDeltas = new double[3];
+        for(int i = 0; i < 3; i++) {
+            odometerDeltas[i] = odometers[i].getCurrentPosition() - odometerPrev[i];
+            odometerPrev[i] = odometers[i].getCurrentPosition();
+        }
+        double odometerAvg = (odometerDeltas[LEFT_ENC] + odometerDeltas[RIGHT_ENC]) / 2;    //clicks
+        double robotY = (odometerAvg / odometerCPR) * Math.PI * odometerDiameter;           //mm
+        double odometerDiff = (odometerDeltas[LEFT_ENC] - odometerDeltas[RIGHT_ENC]) / 2;   //clicks
+        odometerRot = (odometerDiff / odometerCPR) * Math.PI * odometerDiameter;            //mm
+        odometerRot = (2 * odometerRot) / (lrDist * 2);                                     //rad
+        double robotX = (odometerDeltas[CENTER_ENC] / odometerCPR) * Math.PI * odometerDiameter;    //mm
+        robotX = robotX - (odometerRot * xDist);                                            //mm?
+        //double robotX =
         // turn into polar coordinate
         // account for gyroscope
         // turn back into cartesian
