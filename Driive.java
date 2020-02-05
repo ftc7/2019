@@ -3,6 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
 class Driive {
     private DcMotor[] wheels;
     private double[] wheelAngles;
@@ -33,37 +38,37 @@ class Driive {
     private double odometerRot = 0;
 
     /**
-     * Marks whether the robot's driving is field centric
+     * Marks whether the robot's driving is field centric<br>
      * Defaults to true
      */
     boolean fieldCentric = true;
 
     /**
-     * Marks whether the robot fights to maintain its orientation
+     * Marks whether the robot fights to maintain its orientation<br>
      * Defaults to false
      */
     boolean righteous = false;
 
     /**
-     * Speed, works on a scale of 1-10
+     * Speed, works on a scale of 1-10<br>
      * Affects the overall speed of the robot
      */
     int speed = 10;
 
     /**
-     * Initializes the Driive instance
+     * Initializes the Driive instance<br>
      * Called once in init
      *
      * @param wheels An array of the DcMotors to be used for driving
-     * @param wheelAngles An array of the physical angles of the wheels, e.g. 0,90,180,270
-     * @throws java.lang.ArrayIndexOutOfBoundsException - if wheels[] and wheelAngles[] are different lengths
+     * @param wheelAngles An array of the physical angles of the wheels, e.g. 0,pi/2,pi,3pi/2
+     * @throws java.lang.ArrayIndexOutOfBoundsException if wheels[] and wheelAngles[] are different lengths
      */
     void init(DcMotor[] wheels, double[] wheelAngles) throws Exception{
         init(wheels, wheelAngles, 0);
     }
 
     /**
-     * Initializes the Driive instance
+     * Initializes the Driive instance<br>
      * Called once in init
      *
      * @param wheels An array of the DcMotors to be used for driving
@@ -82,9 +87,8 @@ class Driive {
     }
 
     /**
-     * Initializes the odometers
-     * Takes left, center, right
-     *            | - |
+     * Initializes the odometers<br>
+     * Takes left, center, right: | - |
      *
      * @param odometers Array of DcMotors for odometry, NOT ACTUAL MOTORS
      */
@@ -97,20 +101,30 @@ class Driive {
     }
 
     /**
-     * Control movement using x,y values
+     * Returns the absolute position of the robot on the field.<br>
+     *
+     * @return X, Y, rotation
+     */
+    double[] getOdometry() {
+        double[] arr = {odometryX, odometryY, odometerRot};
+        return arr;
+    }
+
+    /**
+     * Control movement using x,y values<br>
      * Call when movement should change
      *
      * @param x The X value of the joystick
      * @param y The Y value of the joystick
      */
     void cartesian(double x, double y, double turn) {
-        r = Math.sqrt(x*x+y*y);
-        theta = Math.atan2(x, y);
+        r = sqrt(x*x+y*y);
+        theta = atan2(x, y);
         this.turn = turn;
     }
 
     /**
-     * Control movement using polar coordinates
+     * Control movement using polar coordinates<br>
      * Call when movement should change
      *
      * @param r The magnitude of the vector
@@ -123,7 +137,7 @@ class Driive {
     }
 
     /**
-     * Drives in a given direction at a given speed for a given distance, using encoders.
+     * Drives in a given direction at a given speed for a given distance, using encoders.<br>
      * Blocking function, will not exit until drive is completed.
      *
      * @param r Speed
@@ -183,7 +197,7 @@ class Driive {
     }
 
     /**
-     * Drives in a given direction at a given speed for a given distance, using encoders.
+     * Drives in a given direction at a given speed for a given distance, using encoders.<br>
      * Blocking function, will not exit until drive is completed.
      *
      * @param r Speed
@@ -245,7 +259,7 @@ class Driive {
     }
 
     /**
-     * Sets the gyroscope value
+     * Sets the gyroscope value<br>
      * Call every loop with updated values
      *
      * @param angle The angle obtained from the gyroscope
@@ -282,7 +296,7 @@ class Driive {
     }
 
     /**
-     * Does the actual processing and driving
+     * Does the actual processing and driving<br>
      * Call once per loop
      */
     void driive() {
@@ -327,24 +341,32 @@ class Driive {
             wheelPowers[i] = Math.sin(wheelAngles[i] - localtheta) * r + turn;       // Telemetry
         }
 
-        // find x and y
-        double[] odometerDeltas = new double[3];
-        for(int i = 0; i < 3; i++) {
-            odometerDeltas[i] = odometers[i].getCurrentPosition() - odometerPrev[i];
-            odometerPrev[i] = odometers[i].getCurrentPosition();
+        if(odometry) {
+            // find x and y
+            double[] odometerDeltas = new double[3];
+            for(int i = 0; i < 3; i++) {
+                odometerDeltas[i] = odometers[i].getCurrentPosition() - odometerPrev[i];
+                odometerPrev[i] = odometers[i].getCurrentPosition();
+            }
+            //    get average of side encoders
+            double odometerAvg = (odometerDeltas[LEFT_ENC] + odometerDeltas[RIGHT_ENC]) / 2;    //clicks
+            double robotY = (odometerAvg / odometerCPR) * Math.PI * odometerDiameter;           //mm
+            //    get rotation according to encoders
+            double odometerDiff = (odometerDeltas[LEFT_ENC] - odometerDeltas[RIGHT_ENC]) / 2;   //clicks
+            odometerRot = (odometerDiff / odometerCPR) * Math.PI * odometerDiameter;            //mm
+            odometerRot = (2 * odometerRot) / (lrDist * 2);                                     //rad
+            //    compensate for rotation
+            double robotX = (odometerDeltas[CENTER_ENC] / odometerCPR) * Math.PI * odometerDiameter;    //mm
+            robotX = robotX - (odometerRot * xDist);                                            //mm?
+            // turn into polar coordinate
+            double robotrot = atan2(robotX, robotY);
+            double robotr = sqrt(robotX*robotX + robotY*robotY);
+            // account for gyroscope
+            robotrot = wrap(robotrot + currentAngle);
+            // turn back into cartesian and add to totals
+            odometryX += robotr * cos(robotrot);
+            odometryY += robotr * sin(robotrot);
         }
-        double odometerAvg = (odometerDeltas[LEFT_ENC] + odometerDeltas[RIGHT_ENC]) / 2;    //clicks
-        double robotY = (odometerAvg / odometerCPR) * Math.PI * odometerDiameter;           //mm
-        double odometerDiff = (odometerDeltas[LEFT_ENC] - odometerDeltas[RIGHT_ENC]) / 2;   //clicks
-        odometerRot = (odometerDiff / odometerCPR) * Math.PI * odometerDiameter;            //mm
-        odometerRot = (2 * odometerRot) / (lrDist * 2);                                     //rad
-        double robotX = (odometerDeltas[CENTER_ENC] / odometerCPR) * Math.PI * odometerDiameter;    //mm
-        robotX = robotX - (odometerRot * xDist);                                            //mm?
-        //double robotX =
-        // turn into polar coordinate
-        // account for gyroscope
-        // turn back into cartesian
-        // add to totals
     }
 
     /**
@@ -364,6 +386,10 @@ class Driive {
         packet.put("righteous", righteous);
         for(int i = 0; i != wheelPowers.length; i++) {
             packet.put("wheel power " + i, wheelPowers[i]);
+        }
+        if(odometry) {
+            packet.put("odometryX", odometryX);
+            packet.put("odometryY", odometryY);
         }
     }
 
