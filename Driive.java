@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import static java.lang.Math.atan2;
+import static java.lang.Math.*;
+/*import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
+import static java.lang.Math.PI;*/
 
 class Driive {
     private DcMotor[] wheels;
@@ -167,7 +169,7 @@ class Driive {
             double total = 0;
             for(int i = 0; i < wheels.length; i++) {
                 packet.put("wheel position " + i, wheels[i].getCurrentPosition());
-                double currentWheelSin = Math.sin(wheelAngles[i] - theta);
+                double currentWheelSin = sin(wheelAngles[i] - theta);
                 double wheelDistance = wheels[i].getCurrentPosition() - wheelDistances[i];
                 double wheelRobotDistance = currentWheelSin * wheelDistance;
                 total += wheelRobotDistance;
@@ -184,7 +186,7 @@ class Driive {
             driive();
 
             // Stop driving
-            if (Math.abs(total) > Math.abs(distance) && turn == 0) break;
+            if (abs(total) > abs(distance) && turn == 0) break;
         }
 
         // Stop driving
@@ -310,18 +312,18 @@ class Driive {
         if(righteous || turning) {
             // Sets amount to turn based on target position
             if(turn == 0.0) {
-                turn = Math.pow(wrap(currentAngle - setAngle), 3);
+                turn = pow(wrap(currentAngle - setAngle), 3);
             }
             // Sets target to current if user is manually turning
             else {
                 setAngle = currentAngle;
             }
 
-            double min = 0.05;
-            double max = 0.10;
+            double min = 0.03;
+            double max = 0.03;
 
             // Avoids low power/squeaking motors
-            if(Math.abs(turn) < min) turn = 0;
+            if(abs(turn) < min) turn = 0;
             if(turn < max && turn > min) turn = max;
             if(turn > -max && turn < -min) turn = -max;
         }
@@ -337,8 +339,8 @@ class Driive {
 
         // Send power to wheels
         for(int i = 0; i != wheels.length; i++) {
-            wheels[i].setPower(Math.sin(wheelAngles[i] - localtheta) * r + turn);
-            wheelPowers[i] = Math.sin(wheelAngles[i] - localtheta) * r + turn;       // Telemetry
+            wheels[i].setPower(sin(wheelAngles[i] - localtheta) * r + turn);
+            wheelPowers[i] = sin(wheelAngles[i] - localtheta) * r + turn;       // Telemetry
         }
 
         if(odometry) {
@@ -348,21 +350,27 @@ class Driive {
                 odometerDeltas[i] = odometers[i].getCurrentPosition() - odometerPrev[i];
                 odometerPrev[i] = odometers[i].getCurrentPosition();
             }
+
             //    get average of side encoders
             double odometerAvg = (odometerDeltas[LEFT_ENC] + odometerDeltas[RIGHT_ENC]) / 2;    //clicks
-            double robotY = (odometerAvg / odometerCPR) * Math.PI * odometerDiameter;           //mm
+            double robotY = (odometerAvg / odometerCPR) * PI * odometerDiameter;           //mm
+
             //    get rotation according to encoders
             double odometerDiff = (odometerDeltas[LEFT_ENC] - odometerDeltas[RIGHT_ENC]) / 2;   //clicks
-            odometerRot = (odometerDiff / odometerCPR) * Math.PI * odometerDiameter;            //mm
-            odometerRot = (2 * odometerRot) / (lrDist * 2);                                     //rad
+            odometerRot = (odometerDiff / odometerCPR) * PI * odometerDiameter;            //mm
+            odometerRot = (2 * odometerRot) / lrDist;                                     //rad
+
             //    compensate for rotation
-            double robotX = (odometerDeltas[CENTER_ENC] / odometerCPR) * Math.PI * odometerDiameter;    //mm
+            double robotX = (odometerDeltas[CENTER_ENC] / odometerCPR) * PI * odometerDiameter;    //mm
             robotX = robotX - (odometerRot * xDist);                                            //mm?
+
             // turn into polar coordinate
             double robotrot = atan2(robotX, robotY);
             double robotr = sqrt(robotX*robotX + robotY*robotY);
+
             // account for gyroscope
             robotrot = wrap(robotrot + currentAngle);
+
             // turn back into cartesian and add to totals
             odometryX += robotr * cos(robotrot);
             odometryY += robotr * sin(robotrot);
@@ -394,15 +402,14 @@ class Driive {
     }
 
     private double wrap(double input) {
-        double pi = Math.PI;
-        while(Math.abs(input) > pi) {
-            if(input < -pi) {
-                input += 2*pi;
+        /*while(abs(input) > PI) {
+            if(input < -PI) {
+                input += 2*PI;
             }
             else {
-                input -= 2*pi;
+                input -= 2*PI;
             }
-        }
+        }*/
         return input;
     }
 }
