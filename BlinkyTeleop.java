@@ -36,27 +36,25 @@ public class BlinkyTeleop extends OpMode {
         }
         robot.sidelift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.frontlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        /*robot.frontlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
         telemetry.addData("Initialized", "Initialized");
         telemetry.update();
     }
 
     public void init_loop() {
-        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+        /*driving.gyro(robot.angles.secondAngle);
         TelemetryPacket packet = new TelemetryPacket();
         driving.updateTelemetry(packet);
-        dashboard.sendTelemetryPacket(packet);
+        dashboard.sendTelemetryPacket(packet);*/
     }
 
     public void loop() {
-        double currentAngle = Math.toRadians(robot.angles.thirdAngle);
-
         // -- DRIVING --
+        driving.cartesian(-gamepad1.left_stick_x, gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         robot.updateGyro();
-
-        driving.cartesian(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+        double currentAngle = -robot.angles.thirdAngle;
         driving.gyro(currentAngle);
         if(!aligning) driving.driive();
 
@@ -85,7 +83,7 @@ public class BlinkyTeleop extends OpMode {
         // -- SPECIAL MOTORS --
 
         // Bumpers run intake
-        if(gamepad2.left_bumper) {
+        /*if(gamepad2.left_bumper) {
             robot.leftintake.setPower(1);
             robot.rightintake.setPower(-1);
         } else if(gamepad2.right_bumper) {
@@ -94,10 +92,10 @@ public class BlinkyTeleop extends OpMode {
         } else {
             robot.leftintake.setPower(0);
             robot.rightintake.setPower(0);
-        }
+        }*/
 
         // Triggers run track
-        robot.track.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
+        //robot.track.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
 
         // x sets frontside to front lift, y to side
         if(gamepad2.x) frontside = false;
@@ -107,7 +105,7 @@ public class BlinkyTeleop extends OpMode {
         double sideliftpower = gamepad2.left_stick_y * sideliftspeed;
         double sideliftpos = robot.sidelift.getCurrentPosition();
         // Front lift
-        if(frontside) {
+        /*if(frontside) {
             if((robot.frontlift.getCurrentPosition() > 0 && gamepad2.left_stick_y > 0) ||
                     (robot.frontlift.getCurrentPosition() < -4000 && gamepad2.left_stick_y < 0)) {
                 robot.frontlift.setPower(0);
@@ -115,19 +113,20 @@ public class BlinkyTeleop extends OpMode {
             else robot.frontlift.setPower(gamepad2.left_stick_y / 6);
         }
         // Side lift
-        else {
+        else {*/
             // If the joystick is being used
             if(sideliftpower != 0) {
                 runningsidedown = false;
 
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 // If it's outside the range, don't run
-                if((sideliftpos > 0 && sideliftpower > 0) /*|| (sideliftpos < -4000 && sideliftpower < 0)*/) {
+                if((sideliftpos > 0 && sideliftpower > 0) || (sideliftpos < -4500 && sideliftpower < 0)) {
                     robot.sidelift.setPower(0);
                 }
                 // Otherwise run
                 else robot.sidelift.setPower(sideliftpower);
             }
+            // Run all the way down when button is pushed
             else if(gamepad2.left_stick_button) {
                 robot.sidelift.setTargetPosition(0);
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -137,16 +136,18 @@ public class BlinkyTeleop extends OpMode {
             else if(!runningsidedown) {
                 robot.sidelift.setPower(0);
             }
-        }
+        //}
 
         // Side lift speed from A/B
         if(gamepad2.a) sideliftspeed = 1;
         if(gamepad2.b) sideliftspeed = .1;
 
         // Right stick X controls current lift grabber
-        if(frontside) robot.frontliftgrab.setPower(gamepad2.right_stick_x);
-        else if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
-        else if(gamepad2.right_stick_y > 0) robot.sideliftgrab.setPosition(0.6);
+        /*if(frontside) robot.frontliftgrab.setPower(gamepad2.right_stick_x);
+        else*/   if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
+        /*else*/ if(gamepad2.right_stick_y > 0) {
+            robot.sideliftgrab.setPosition(0.6);
+        }
 
         // D-pad up/down controls platform grabber
         if(gamepad2.dpad_up) robot.platform.setPosition(0.2);
@@ -192,12 +193,12 @@ public class BlinkyTeleop extends OpMode {
         packet.put("frontside", frontside);
 
 
-        packet.put("power.frontlift", robot.frontlift.getPower());
-        packet.put("position.frontlift", robot.frontlift.getCurrentPosition());
+        /*packet.put("power.frontlift", robot.frontlift.getPower());
+        packet.put("position.frontlift", robot.frontlift.getCurrentPosition());*/
         packet.put("power.sidelift", robot.sidelift.getPower());
         packet.put("position.sidelift", robot.sidelift.getCurrentPosition());
-        packet.put("power.track", robot.track.getPower());
-        packet.put("position.track", robot.track.getCurrentPosition());
+        //packet.put("power.track", robot.track.getPower());
+        //packet.put("position.track", robot.track.getCurrentPosition());
         //packet.put("one.power", robot.one.getPower());
         packet.put("position.one", robot.one.getCurrentPosition());
         //packet.put("two.power", robot.two.getPower());
@@ -206,6 +207,9 @@ public class BlinkyTeleop extends OpMode {
         packet.put("position.three", robot.three.getCurrentPosition());
         //packet.put("four.power", robot.four.getPower());
         packet.put("position.four", robot.four.getCurrentPosition());
+        packet.put("first", robot.angles.firstAngle);
+        packet.put("second", robot.angles.secondAngle);
+        packet.put("third", robot.angles.thirdAngle);
 
         packet.put("distance", robot.distance.getDistance(DistanceUnit.CM));
         packet.put("aligning", aligning);
