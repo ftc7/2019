@@ -22,12 +22,12 @@ class Blinky {
     DcMotor three = null;
     DcMotor four = null;
 
-    CRServo leftintake = null;
-    CRServo rightintake = null;
-    DcMotor track = null;
+    //CRServo leftintake = null;
+    //CRServo rightintake = null;
+    //DcMotor track = null;
     DcMotor sidelift = null;
-    DcMotor frontlift = null;
-    CRServo frontliftgrab = null;
+    //DcMotor frontlift = null;
+    //CRServo frontliftgrab = null;
     Servo sideliftgrab = null;
     Servo platform = null;
 
@@ -50,12 +50,12 @@ class Blinky {
         three = ahwMap.dcMotor.get("three");
         four = ahwMap.dcMotor.get("four");
 
-        leftintake = ahwMap.crservo.get("leftintake");
-        rightintake = ahwMap.crservo.get("rightintake");
-        track = ahwMap.dcMotor.get("track");
+        //leftintake = ahwMap.crservo.get("leftintake");
+        //rightintake = ahwMap.crservo.get("rightintake");
+        //track = ahwMap.dcMotor.get("track");
         sidelift = ahwMap.dcMotor.get("sidelift");
-        frontlift = ahwMap.dcMotor.get("frontlift");
-        frontliftgrab = ahwMap.crservo.get("frontliftgrab");
+        //frontlift = ahwMap.dcMotor.get("frontlift");
+        //frontliftgrab = ahwMap.crservo.get("frontliftgrab");
         sideliftgrab = ahwMap.servo.get("sideliftgrab");
         platform = ahwMap.servo.get("platform");
         color = ahwMap.get(ColorSensor.class, "cd_sense");
@@ -66,17 +66,17 @@ class Blinky {
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         three.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         four.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //frontlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         sidelift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        track.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        //track.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        track.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //track.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -93,7 +93,7 @@ class Blinky {
     }
 
     void updateGyro() {
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+        angles = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS);
         gravity = imu.getGravity();
     }
 }
