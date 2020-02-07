@@ -16,8 +16,8 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
-    private double clicksPerMm = 1.64;
-    private double autospeed = 0.8;
+    private double clicksPerMm = .82;
+    private double autospeed = 0.5;
 
     public void runOpMode() {
 
@@ -132,9 +132,9 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
 
         // Turn with the platform
         //driving.polarAutoTurn(autospeed, pi/2, 1300 * clicksPerMm, this, 0.5);
-        driving.polarAutoTurn(autospeed, pi/2, Math.PI / 2, this, 0.5);
+        driving.polarAutoTurn(autospeed, pi/2, Math.PI / 2, this, -Math.PI/2);
 
-        driving.polarAutoTurn(autospeed, 3*pi/2, 900 * clicksPerMm, this, -0.2);
+        driving.polarAuto(autospeed, 3*pi/2, 900 * clicksPerMm, this);
 
         robot.platform.setPosition(0.4);
 
@@ -170,6 +170,6 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
-        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+        driving.gyro(robot.angles.thirdAngle);
     }
 }

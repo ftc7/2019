@@ -11,8 +11,8 @@ public class DriiveAutoBlueNoplatform extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
-    private double clicksPerMm = 1.64;
-    private double autospeed = 0.8;
+    private double clicksPerMm = .82;
+    private double autospeed = 0.5;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
     public void runOpMode() {
@@ -164,6 +164,6 @@ public class DriiveAutoBlueNoplatform extends LinearOpMode implements TeleAuto {
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
-        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+        driving.gyro(robot.angles.thirdAngle);
     }
 }

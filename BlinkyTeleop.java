@@ -14,16 +14,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @TeleOp(name = "Blinky")
 public class BlinkyTeleop extends OpMode {
     private Blinky robot = new Blinky();
-    //private gpPrev1 prev1 = new gpPrev1();
     private Gamepad prev1 = new Gamepad();
+    private Gamepad prev2 = new Gamepad();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Driive driving = new Driive();
 
     private double angle1 = 0.0;
     private boolean frontside = false;
     private double sideliftspeed = 1;
-    private boolean runningsidedown = false;
+    private boolean runningside = false;
     private boolean aligning = false;
+    private boolean grabbing = true;
+    private double grabtime = 0;
 
     public void init() {
         robot.init(hardwareMap);
@@ -47,6 +49,7 @@ public class BlinkyTeleop extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
         driving.updateTelemetry(packet);
         dashboard.sendTelemetryPacket(packet);*/
+        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition());
     }
 
     public void loop() {
@@ -54,7 +57,7 @@ public class BlinkyTeleop extends OpMode {
         driving.cartesian(-gamepad1.left_stick_x, gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         robot.updateGyro();
-        double currentAngle = -robot.angles.thirdAngle;
+        double currentAngle = robot.angles.thirdAngle;
         driving.gyro(currentAngle);
         if(!aligning) driving.driive();
 
@@ -116,11 +119,12 @@ public class BlinkyTeleop extends OpMode {
         else {*/
             // If the joystick is being used
             if(sideliftpower != 0) {
-                runningsidedown = false;
+                runningside = false;
+                grabbing = false;
 
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 // If it's outside the range, don't run
-                if((sideliftpos > 0 && sideliftpower > 0) || (sideliftpos < -4500 && sideliftpower < 0)) {
+                if((sideliftpos > 0 && sideliftpower > 0) /*|| (sideliftpos < -4500 && sideliftpower < 0)*/) {
                     robot.sidelift.setPower(0);
                 }
                 // Otherwise run
@@ -128,13 +132,18 @@ public class BlinkyTeleop extends OpMode {
             }
             // Run all the way down when button is pushed
             else if(gamepad2.left_stick_button) {
+                grabbing = false;
                 robot.sidelift.setTargetPosition(0);
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.sidelift.setPower(1);
-                runningsidedown = true;
+                runningside = true;
             }
-            else if(!runningsidedown) {
-                robot.sidelift.setPower(0);
+            else if(!runningside) {
+                if(prev2.left_stick_y != 0) {
+                    robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition());
+                }
+                robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.sidelift.setPower(1);
             }
         //}
 
@@ -145,8 +154,16 @@ public class BlinkyTeleop extends OpMode {
         // Right stick X controls current lift grabber
         /*if(frontside) robot.frontliftgrab.setPower(gamepad2.right_stick_x);
         else*/   if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
-        /*else*/ if(gamepad2.right_stick_y > 0) {
-            robot.sideliftgrab.setPosition(0.6);
+        else if(gamepad2.right_stick_y > 0) {
+            grab();
+        }
+        if(grabbing) {
+            if(getRuntime() - .5 > grabtime) {
+                robot.sidelift.setTargetPosition(-300);
+                robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.sidelift.setPower(1);
+                runningside = true;
+            }
         }
 
         // D-pad up/down controls platform grabber
@@ -161,21 +178,27 @@ public class BlinkyTeleop extends OpMode {
         if(aligning) {
             if(distance < 3) {
                 boolean prevFC = driving.fieldCentric;
+                int prevSpeed = driving.speed;
                 driving.fieldCentric = false;
-                driving.polar(0.2, Math.PI, 0);
+                driving.speed = 10;
+                driving.polar(0.1, Math.PI, 0);
                 driving.driive();
                 driving.fieldCentric = prevFC;
+                driving.speed = prevSpeed;
             }
             else {
-                robot.sideliftgrab.setPosition(0.6);
+                grab();
                 driving.polar(0, 0, 0);
                 driving.driive();
                 aligning = false;
             }
         }
 
-        // -- TELEMETRY --
+        try {
+            prev2.copy(gamepad2);
+        } catch(RobotCoreException e) {}
 
+        // -- TELEMETRY --
         telemetry.addData("DRIVING", "");
         telemetry.addData("Field centric", driving.fieldCentric);
         telemetry.addData("Righteous", driving.righteous);
@@ -207,9 +230,9 @@ public class BlinkyTeleop extends OpMode {
         packet.put("position.three", robot.three.getCurrentPosition());
         //packet.put("four.power", robot.four.getPower());
         packet.put("position.four", robot.four.getCurrentPosition());
-        packet.put("first", robot.angles.firstAngle);
-        packet.put("second", robot.angles.secondAngle);
-        packet.put("third", robot.angles.thirdAngle);
+        packet.put("angles.first", robot.angles.firstAngle);
+        packet.put("angles.second", robot.angles.secondAngle);
+        packet.put("angles.third", robot.angles.thirdAngle);
 
         packet.put("distance", robot.distance.getDistance(DistanceUnit.CM));
         packet.put("aligning", aligning);
@@ -217,5 +240,11 @@ public class BlinkyTeleop extends OpMode {
         driving.updateTelemetry(packet);
 
         dashboard.sendTelemetryPacket(packet);
+    }
+
+    private void grab() {
+        robot.sideliftgrab.setPosition(0.6);
+        grabbing = true;
+        grabtime = getRuntime();
     }
 }

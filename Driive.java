@@ -89,6 +89,22 @@ class Driive {
     }
 
     /**
+     * Changes zero power behavior; true is braking, false is floating
+     *
+     * @param brake
+     */
+    void setBrake(boolean brake) {
+        for(DcMotor wheel:wheels) {
+            if(brake) {
+                wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            }
+            else {
+                wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            }
+        }
+    }
+
+    /**
      * Initializes the odometers<br>
      * Takes left, center, right: | - |
      *
@@ -147,9 +163,6 @@ class Driive {
      * @param distance Distance in clicks
      */
     void polarAuto(double r, double theta, double distance, TeleAuto callback) {
-        this.r = r;
-        this.theta = theta;
-
         // Records previous preferences
         boolean righteousPrev = righteous;
         boolean fieldCentricPrev = fieldCentric;
@@ -183,6 +196,80 @@ class Driive {
 
             // Drive
             this.turn = 0;
+            this.r = r;
+            this.theta = theta;
+            driive();
+
+            // Stop driving
+            if (abs(total) > abs(distance) && turn == 0) break;
+        }
+
+        // Stop driving
+        this.r = 0;
+        driive();
+
+        // Resets to previous values
+        fieldCentric = fieldCentricPrev;
+        righteous = righteousPrev;
+    }
+
+    /**
+     * Drives in a given direction at a given speed for a given distance, using encoders.<br>
+     * Blocking function, will not exit until drive is completed. <br>
+     * Curves acceleration and deceleration.
+     *
+     * @param r Speed
+     * @param theta Direction in radians from zero
+     * @param distance Distance in clicks
+     */
+    void polarAutoCurve(double r, double theta, double distance, TeleAuto callback, double slowclicks) {
+        // Records previous preferences
+        boolean righteousPrev = righteous;
+        boolean fieldCentricPrev = fieldCentric;
+        fieldCentric = true;
+        righteous = true;
+
+        // Gets initial wheel positions
+        double[] wheelDistances = new double[wheels.length];
+        for(int i = 0; i < wheels.length; i++) {
+            wheelDistances[i] = wheels[i].getCurrentPosition();
+        }
+
+        while(callback.opModeIsActive()) {
+            TelemetryPacket packet = new TelemetryPacket();
+
+            // Find the current total average delta
+            double total = 0;
+            for(int i = 0; i < wheels.length; i++) {
+                packet.put("wheel position " + i, wheels[i].getCurrentPosition());
+                double currentWheelSin = sin(wheelAngles[i] - theta);
+                double wheelDistance = wheels[i].getCurrentPosition() - wheelDistances[i];
+                double wheelRobotDistance = currentWheelSin * wheelDistance;
+                total += wheelRobotDistance;
+            }
+            total /= wheels.length;
+
+            // Add data to telemetry
+            updateTelemetry(packet);
+            packet.put("total", total);
+            callback.updateAuto(packet);
+
+            // Drive
+            this.turn = 0;
+            if(abs(total) < slowclicks) {
+                this.r = r * total / slowclicks;
+            }
+            else if(abs(total) > (abs(distance) - slowclicks)) {
+                this.r = r * (distance - total) / slowclicks;
+            }
+            else {
+                this.r = r;
+            }
+            if(this.r < 0.1) {
+                this.r = 0.1;
+            }
+            //this.r = r;
+            this.theta = theta;
             driive();
 
             // Stop driving
@@ -208,9 +295,6 @@ class Driive {
      * @param turn Amount to turn
      */
     void polarAutoTurn(double r, double theta, double delta, TeleAuto callback, double turn) {
-        this.r = r;
-        this.theta = theta;
-
         // Records previous preferences
         boolean righteousPrev = righteous;
         boolean fieldCentricPrev = fieldCentric;
@@ -244,6 +328,8 @@ class Driive {
 
             // Drive
             this.turn = turn;
+            this.r = r;
+            this.theta = theta;
             driive();
 
             // Stop driving
@@ -402,14 +488,14 @@ class Driive {
     }
 
     private double wrap(double input) {
-        /*while(abs(input) > PI) {
+        while(abs(input) > PI) {
             if(input < -PI) {
                 input += 2*PI;
             }
             else {
                 input -= 2*PI;
             }
-        }*/
+        }
         return input;
     }
 }

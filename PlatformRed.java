@@ -38,6 +38,6 @@ public class PlatformRed extends LinearOpMode implements TeleAuto {
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
-        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+        driving.gyro(robot.angles.thirdAngle);
     }
 }

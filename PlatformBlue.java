@@ -13,7 +13,7 @@ public class PlatformBlue extends LinearOpMode implements TeleAuto {
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
     public void runOpMode() {
-        double autospeed = 0.7;
+        double autospeed = 0.5;
 
         robot.init(hardwareMap);
         DcMotor[] wheels = {robot.one, robot.two, robot.three, robot.four};
@@ -41,6 +41,6 @@ public class PlatformBlue extends LinearOpMode implements TeleAuto {
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
-        driving.gyro(Math.toRadians(robot.angles.thirdAngle));
+        driving.gyro(robot.angles.thirdAngle);
     }
 }
