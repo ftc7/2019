@@ -10,6 +10,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -39,6 +40,9 @@ class Blinky {
 
     ColorSensor color;
     DistanceSensor distance;
+    DistanceSensor distance_platform;
+    DistanceSensor distance_unplat;
+    DistanceSensor distance_blockplat;
 
     Blinky(){}
 
@@ -60,7 +64,9 @@ class Blinky {
         platform = ahwMap.servo.get("platform");
         color = ahwMap.get(ColorSensor.class, "cd_sense");
         distance = ahwMap.get(DistanceSensor.class, "cd_sense");
-
+        distance_platform = ahwMap.get(DistanceSensor.class, "platform_sense");
+        distance_unplat = ahwMap.get(DistanceSensor.class, "distance_unplat");
+        distance_blockplat = ahwMap.get(DistanceSensor.class, "distance_blockplat");
 
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -96,4 +102,16 @@ class Blinky {
         angles = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS);
         gravity = imu.getGravity();
     }
+
+    double getBatteryVoltage() {
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : hwMap.voltageSensor) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        return result;
+    }
+
 }

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name="-platform red", group="red")
-public class DriiveAutoNoplatform extends LinearOpMode implements TeleAuto {
+public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();

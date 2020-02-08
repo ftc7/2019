@@ -154,63 +154,14 @@ class Driive {
         this.turn = turn;
     }
 
-    /**
-     * Drives in a given direction at a given speed for a given distance, using encoders.<br>
-     * Blocking function, will not exit until drive is completed.
-     *
-     * @param r Speed
-     * @param theta Direction in radians from zero
-     * @param distance Distance in clicks
-     */
     void polarAuto(double r, double theta, double distance, TeleAuto callback) {
-        // Records previous preferences
-        boolean righteousPrev = righteous;
-        boolean fieldCentricPrev = fieldCentric;
-        fieldCentric = true;
-        righteous = true;
-
-        // Gets initial wheel positions
-        double[] wheelDistances = new double[wheels.length];
-        for(int i = 0; i < wheels.length; i++) {
-            wheelDistances[i] = wheels[i].getCurrentPosition();
-        }
-
-        while(callback.opModeIsActive()) {
-            TelemetryPacket packet = new TelemetryPacket();
-
-            // Find the current total average delta
-            double total = 0;
-            for(int i = 0; i < wheels.length; i++) {
-                packet.put("wheel position " + i, wheels[i].getCurrentPosition());
-                double currentWheelSin = sin(wheelAngles[i] - theta);
-                double wheelDistance = wheels[i].getCurrentPosition() - wheelDistances[i];
-                double wheelRobotDistance = currentWheelSin * wheelDistance;
-                total += wheelRobotDistance;
-            }
-            total /= wheels.length;
-
-            // Add data to telemetry
-            updateTelemetry(packet);
-            packet.put("total", total);
-            callback.updateAuto(packet);
-
-            // Drive
-            this.turn = 0;
-            this.r = r;
-            this.theta = theta;
-            driive();
-
-            // Stop driving
-            if (abs(total) > abs(distance) && turn == 0) break;
-        }
-
-        // Stop driving
+        polarAuto(r, theta, distance, callback, 0, false, false);
         this.r = 0;
         driive();
+    }
 
-        // Resets to previous values
-        fieldCentric = fieldCentricPrev;
-        righteous = righteousPrev;
+    void polarAuto(double r, double theta, double distance, TeleAuto callback, double slowclicks) {
+        polarAuto(r, theta, distance, callback, slowclicks, true, true);
     }
 
     /**
@@ -221,8 +172,12 @@ class Driive {
      * @param r Speed
      * @param theta Direction in radians from zero
      * @param distance Distance in clicks
+     * @param callback this
+     * @param slowclicks Number of clicks to ramp out with
+     * @param curvein Whether to ramp speed up
+     * @param curveout Whether to ramp speed down
      */
-    void polarAutoCurve(double r, double theta, double distance, TeleAuto callback, double slowclicks) {
+    void polarAuto(double r, double theta, double distance, TeleAuto callback, double slowclicks, boolean curvein, boolean curveout) {
         // Records previous preferences
         boolean righteousPrev = righteous;
         boolean fieldCentricPrev = fieldCentric;
@@ -256,17 +211,17 @@ class Driive {
 
             // Drive
             this.turn = 0;
-            if(abs(total) < slowclicks) {
-                this.r = r * total / slowclicks;
+            if(total < (slowclicks / 10) && curvein) {
+                this.r = r * total / (slowclicks / 10);
             }
-            else if(abs(total) > (abs(distance) - slowclicks)) {
+            else if(total > (abs(distance) - slowclicks) && curveout) {
                 this.r = r * (distance - total) / slowclicks;
             }
             else {
                 this.r = r;
             }
-            if(this.r < 0.1) {
-                this.r = 0.1;
+            if(this.r < 0.4) {
+                this.r = 0.4;
             }
             //this.r = r;
             this.theta = theta;
@@ -277,8 +232,8 @@ class Driive {
         }
 
         // Stop driving
-        this.r = 0;
-        driive();
+        //this.r = 0;
+        //driive();
 
         // Resets to previous values
         fieldCentric = fieldCentricPrev;
@@ -347,6 +302,15 @@ class Driive {
     }
 
     /**
+     * Stops all wheels.
+     */
+    void stopWheels() {
+        for(DcMotor wheel:wheels) {
+            wheel.setPower(0);
+        }
+    }
+
+    /**
      * Sets the gyroscope value<br>
      * Call every loop with updated values
      *
@@ -398,15 +362,15 @@ class Driive {
         if(righteous || turning) {
             // Sets amount to turn based on target position
             if(turn == 0.0) {
-                turn = pow(wrap(currentAngle - setAngle), 3);
+                turn = -pow(wrap(currentAngle - setAngle), 3);
             }
             // Sets target to current if user is manually turning
             else {
                 setAngle = currentAngle;
             }
 
-            double min = 0.03;
-            double max = 0.03;
+            double min = 0.05;
+            double max = 0.05;
 
             // Avoids low power/squeaking motors
             if(abs(turn) < min) turn = 0;

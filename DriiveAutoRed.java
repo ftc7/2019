@@ -11,13 +11,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 
 @Autonomous(name="full red", group="red")
-public class DriiveAuto extends LinearOpMode implements TeleAuto {
+public class DriiveAutoRed extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
     private double clicksPerMm = .82;
-    private double autospeed = 0.5;
+    private double autospeed = 1;
 
     public void runOpMode() {
 
@@ -29,6 +29,8 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
             driving.init(wheels, angles);
         } catch(Exception e) {
         }
+
+        driving.speed = 10;
 
         vuforia.initVuforia(hardwareMap, dashboard);
         vuforia.activateVuforia();
@@ -47,7 +49,7 @@ public class DriiveAuto extends LinearOpMode implements TeleAuto {
         waitForStart();
         driving.resetZero();
 
-        driving.polarAuto(autospeed, Math.PI / 2, 400 * clicksPerMm, this);                 // Drive to look at the blocks
+        driving.polarAuto(autospeed, Math.PI / 2, 400 * clicksPerMm, this, 100);                 // Drive to look at the blocks
 
         // Open the side lift grabber
         robot.sideliftgrab.setPosition(0);

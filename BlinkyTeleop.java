@@ -16,6 +16,7 @@ public class BlinkyTeleop extends OpMode {
     private Blinky robot = new Blinky();
     private Gamepad prev1 = new Gamepad();
     private Gamepad prev2 = new Gamepad();
+    private int prevSpeed = 0;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Driive driving = new Driive();
 
@@ -78,6 +79,13 @@ public class BlinkyTeleop extends OpMode {
         if(gamepad1.b && !prev1.b) driving.speed -= 2;
         if(driving.speed > 10) driving.speed = 10;
         if(driving.speed < 2) driving.speed = 2;
+        if(gamepad1.right_stick_button && !prev1.right_stick_button) {
+            prevSpeed = driving.speed;
+            driving.speed = 8;
+        }
+        else if(!gamepad1.right_stick_button && prev1.right_stick_button) {
+            driving.speed = prevSpeed;
+        }
 
         try {
             prev1.copy(gamepad1);
@@ -139,9 +147,9 @@ public class BlinkyTeleop extends OpMode {
                 runningside = true;
             }
             else if(!runningside) {
-                if(prev2.left_stick_y != 0) {
+                //if(prev2.left_stick_y != 0) {
                     robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition());
-                }
+                //}
                 robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.sidelift.setPower(1);
             }
@@ -211,7 +219,7 @@ public class BlinkyTeleop extends OpMode {
 
         packet.put("fieldCentric", driving.fieldCentric);
         packet.put("righteous", driving.righteous);
-        packet.put("speed", driving.speed);
+        packet.put("speed", driving.speed / 10);
 
         packet.put("frontside", frontside);
 
@@ -235,6 +243,10 @@ public class BlinkyTeleop extends OpMode {
         packet.put("angles.third", robot.angles.thirdAngle);
 
         packet.put("distance", robot.distance.getDistance(DistanceUnit.CM));
+        packet.put("distance_platform", robot.distance_platform.getDistance(DistanceUnit.CM));
+        packet.put("distance_unplat", robot.distance_unplat.getDistance(DistanceUnit.CM));
+        packet.put("distance_blockplat", robot.distance_blockplat.getDistance(DistanceUnit.CM));
+        packet.put("battery", robot.getBatteryVoltage());
         packet.put("aligning", aligning);
 
         driving.updateTelemetry(packet);
