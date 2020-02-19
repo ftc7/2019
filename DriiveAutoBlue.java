@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.CM;
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 import static java.lang.Math.PI;
@@ -22,7 +20,6 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
     private double autospeed = 1;
 
     public void runOpMode() {
-
         robot.init(hardwareMap);
         DcMotor[] wheels = {robot.one, robot.two, robot.three, robot.four};
         double[] angles = {PI / 4, PI * 3 / 4, PI * 5 / 4, PI * 7 / 4};
@@ -59,7 +56,6 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         // Give Vuforia a second to locate the block
         double looptime = getRuntime();
         int position = 0;
-        boolean seenblock = false;
         while(opModeIsActive() && getRuntime() < looptime + 1) {
             TelemetryPacket packet = new TelemetryPacket();
 
@@ -78,8 +74,6 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
                     position = 1;
                     packet.put("position", 1);
                 }
-
-                seenblock = true;
             }
             // If we can't see it, it's in the far left position
             else {
@@ -110,7 +104,7 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
                 driving.polarAuto(0.5, 0, 40 * clicksPerMm, this, 0);    // to standard position
                 break;
             case 3:
-                driving.polarAuto(0.5, 0, 40 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.5, 0, 20 * clicksPerMm, this);       // in front of block
                 grabBlock();
                 //driving.polarAuto(0.5, Math.PI * 3 / 2, 0, this);    // to standard position
                 break;
@@ -120,10 +114,10 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         //driving.turnAbs(pi);
         //driving.polarAuto(0, 0, 0, this);
 
-        // Drive across the field, drop
-        driving.polarAuto(autospeed, 0, 1000 * clicksPerMm, this, 0, false, false);
+        // Drive across the field
+        driving.polarAuto(autospeed / 2, 0, 1000 * clicksPerMm, this, 0, false, false);
         robot.sidelift.setTargetPosition(robot.sidelift.getTargetPosition() - 1000);
-        driving.polarAuto(autospeed, 0, 800 * clicksPerMm, this, 200, false, true);
+        driving.polarAuto(autospeed / 2, 0, 1000 * clicksPerMm, this, 200, false, true);
         driving.stopWheels();
         sleep(100);
         //driving.polarAuto(0, 0, 0, this);
@@ -133,7 +127,7 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         // Drive to the foundation
         driving.polarAuto(autospeed / 4, PI / 2, 20, this, 20, true, false);
         double runtime = getRuntime();
-        while(!(robot.distance_blockplat.getDistance(CM) < 50) && runtime > getRuntime() - 1);        // gross logic necessary for v2 sensor
+        while(!(robot.distance_blockplat.getDistance(CM) < 50) && runtime > getRuntime() - 1 && opModeIsActive());        // gross logic necessary for v2 sensor
         driving.stopWheels();
         sleep(500);
 
@@ -142,19 +136,22 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         sleep(200);
 
         // Back away from platform
-        driving.polarAuto(autospeed / 3, 3 * PI / 2, 200, this, 0);
+        driving.polarAuto(autospeed / 3, 3 * PI / 2, 100, this, 0);
         // Lower lift
         robot.sidelift.setTargetPosition(0);
+        // Park
+        driving.polarAuto(autospeed / 2, PI, 600, this, 100);
+        driving.polarAuto(0, 0, 0, this);
         // Turn towards platform
-        driving.speed = 4;
+        /*driving.speed = 4;
         driving.turnAbs(.9 * PI / 2);
         driving.polarAuto(0, 0, 0, this);
         driving.stopWheels();
         driving.speed = 10;
         // Drive to platform
         robot.platform.setPosition(0.5);
-        driving.polarAuto(autospeed / 4, PI / 4, 20, this, 20);
-        while(robot.distance_platform.getDistance(CM) > 3);
+        driving.polarAuto(autospeed / 4, PI / 2, 20, this, 20);
+        while(robot.distance_platform.getDistance(CM) > 3 && opModeIsActive());
         driving.stopWheels();
         // Grab the platform
         robot.platform.setPosition(0.65);
@@ -165,39 +162,20 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
 
         // Reposition platform
         driving.polarAuto(autospeed, 3 * PI / 2, 20, this, 0);
-        while(robot.distance_unplat.getDistance(CM) > 4.5);
+        while(robot.distance_unplat.getDistance(CM) > 4.5 && opModeIsActive());
 
         // Park
         robot.platform.setPosition(0.2);
         sleep(500);
-        driving.polarAuto(autospeed, PI, 380, this);
+        driving.polarAuto(autospeed, PI, 380, this);*/
         driving.stopWheels();
-        sleep(1000);
-    }
-
-    /*private void driveAnywhere(double x, double y, double speed, SkystoneNav vuforia) {
-        while(opModeIsActive() && !vuforia.updateVuforia());
-        double dx = x - vuforia.translation.get(0);
-        double dy = y - vuforia.translation.get(1);
-        double theta = Math.atan2(dx, dy);
-        double r = Math.sqrt(dx * dx + dy * dy);
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("dx", dx);
-        packet.put("dy", dy);
-        packet.put("theta", theta);
-        packet.put("r", r);
-        sleep(500);
-        dashboard.sendTelemetryPacket(packet);
         sleep(5000);
-        //driving.polarAuto(speed, theta, r, this);
-        driving.polarAuto(speed, Math.PI, dx, this);
-        driving.polarAuto(speed, Math.PI/2, dy, this);
-    }*/
+    }
 
     private void grabBlock() {
         driving.polarAuto(0.2, Math.PI / 2, 300 * clicksPerMm, this, 50);                   // to block
         double runtime = getRuntime();
-        while(robot.distance.getDistance(CM) > 5 && getRuntime() < runtime + 1);
+        while(robot.distance_alignment.getDistance(CM) > 5 && getRuntime() < runtime + 1 && opModeIsActive());
         driving.stopWheels();
         sleep(300);
         robot.sideliftgrab.setPosition(0.6);
@@ -206,7 +184,7 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         robot.sidelift.setPower(0.5);
         sleep(500);
         driving.setBrake(true);
-        driving.polarAuto(0.4, Math.PI * 3/2, 350 * clicksPerMm, this);                  // away from block
+        driving.polarAuto(0.4, Math.PI * 3/2, 370 * clicksPerMm, this);                  // away from block
     }
 
     private void vuforiaTelemetry(SkystoneNav instance, TelemetryPacket packet) {
@@ -227,5 +205,6 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
         driving.gyro(robot.angles.thirdAngle);
+        opModeIsActive();
     }
 }

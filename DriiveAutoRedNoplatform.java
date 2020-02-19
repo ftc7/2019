@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="-platform red", group="red")
+@Autonomous(name="-platform red", group="bred")
 public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();

@@ -6,17 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.CM;
-
-@Autonomous(name="platform red", group="platform")
-public class PlatformRed extends LinearOpMode implements TeleAuto {
+@Autonomous(name="delay park", group="park")
+public class ParkDelay extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private double clicksPerMm = .6;
-    private double autospeed = 0.4;
 
     public void runOpMode() {
 
@@ -31,26 +26,15 @@ public class PlatformRed extends LinearOpMode implements TeleAuto {
 
         waitForStart();
 
-        driving.polarAuto(autospeed, pi + 0.3, 1000 * clicksPerMm, this, 100);
-        //while(opModeIsActive() && !(robot.distance_blockplat.getDistance(CM) < 50));
+        sleep(27000);
+        driving.polarAuto(0.5, 0, 100 * clicksPerMm, this);
         driving.stopWheels();
-        //sleep(500);
-        robot.platform.setPosition(0.65);
-        driving.polarAuto(0,0,0, this);
-        sleep(1500);
-        driving.polarAuto(autospeed, 0, 10+00 * clicksPerMm, this, 0, false, false);
-        while(robot.distance_unplat.getDistance(DistanceUnit.CM) > 4 && opModeIsActive());
-        robot.platform.setPosition(0.2);
-        driving.polarAuto(autospeed, 0, 100 * clicksPerMm, this);
         sleep(1000);
-
-        // SIDE SPECIFIC
     }
 
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
         driving.gyro(robot.angles.thirdAngle);
-        opModeIsActive();
     }
 }

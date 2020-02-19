@@ -6,14 +6,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="platform blue", group="blue")
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.CM;
+
+@Autonomous(name="platform blue", group="platform")
 public class PlatformBlue extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private double clicksPerMm = .6;
+    private double autospeed = 0.4;
 
     public void runOpMode() {
-        double autospeed = 0.5;
 
         robot.init(hardwareMap);
         DcMotor[] wheels = {robot.one, robot.two, robot.three, robot.four};
@@ -26,21 +31,27 @@ public class PlatformBlue extends LinearOpMode implements TeleAuto {
 
         waitForStart();
 
-        driving.polarAuto(autospeed, 3*pi/2, 1000 * 1.6, this);
-        robot.platform.setPosition(0.9);
-        sleep(500);
-        driving.polarAuto(autospeed, pi/2, 900 * 1.6, this);
-        robot.platform.setPosition(400);
-        driving.polarAuto(autospeed, pi/2, 100 * 1.6, this);
+        driving.polarAuto(autospeed, pi - 0.3, 1000 * clicksPerMm, this, 100);
+        //while(opModeIsActive() && !(robot.distance_blockplat.getDistance(CM) < 50));
+        driving.stopWheels();
+        //sleep(500);
+        robot.platform.setPosition(0.65);
+        driving.polarAuto(0,0,0, this);
+        sleep(1500);
+        driving.polarAuto(autospeed, 0, 1000 * clicksPerMm, this, 0, false, false);
+        while(robot.distance_unplat.getDistance(DistanceUnit.CM) > 4 && opModeIsActive());
+        robot.platform.setPosition(0.2);
+        driving.polarAuto(autospeed, 0, 100 * clicksPerMm, this);
+        driving.stopWheels();
+        sleep(1000);
 
         // SIDE SPECIFIC
-
-        //driving.polarAuto(autospeed, 0, 500, this);
     }
 
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
         driving.gyro(robot.angles.thirdAngle);
+        opModeIsActive();
     }
 }

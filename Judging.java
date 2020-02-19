@@ -3,15 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="park", group="park")
-public class Park extends LinearOpMode implements TeleAuto {
+@Disabled
+@Autonomous(name="judging", group="judging")
+public class Judging extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
-    private double clicksPerMm = .6;
 
     public void runOpMode() {
 
@@ -26,9 +27,9 @@ public class Park extends LinearOpMode implements TeleAuto {
 
         waitForStart();
 
-        driving.polarAuto(0.5, 0, 100 * clicksPerMm, this);
-        driving.stopWheels();
-        sleep(1000);
+        driving.polarAuto(0.5, 0, 1000 * .6, this, 100, true, false);
+        driving.turnAbs(Math.PI);
+        driving.polarAuto(0.5, 0, 2000 * .6, this, 100, false, true);
     }
 
     public void updateAuto(TelemetryPacket packet) {

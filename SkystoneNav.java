@@ -23,7 +23,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
-@Config
+//@Config
 class PhonePosition {
     public static int phoneX = 0;
     public static int phoneY = 0;
