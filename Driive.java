@@ -21,6 +21,17 @@ class Driive {
     private double turn;
     private boolean turning = false;
 
+    public void setTurnThreshold(double turnThreshold) {
+        this.turnThreshold = turnThreshold;
+    }
+
+    public void setMinTurnSpeed(double minTurnSpeed) {
+        this.minTurnSpeed = minTurnSpeed;
+    }
+
+    private double turnThreshold = 0.05;
+    private double minTurnSpeed = 0.05;
+
     private double[] wheelPowers;
 
     private boolean odometry = false;
@@ -369,13 +380,12 @@ class Driive {
                 setAngle = currentAngle;
             }
 
-            double min = 0.05;
-            double max = 0.05;
-
-            // Avoids low power/squeaking motors
-            if(abs(turn) < min) turn = 0;
-            if(turn < max && turn > min) turn = max;
-            if(turn > -max && turn < -min) turn = -max;
+            // Avoids low power/squeaking motors, if not driving
+            if(r != 0) {
+                if(abs(turn) < turnThreshold) turn = 0;
+                if(turn < minTurnSpeed && turn > turnThreshold) turn = minTurnSpeed;
+                if(turn > -minTurnSpeed && turn < -turnThreshold) turn = -minTurnSpeed;
+            }
         }
 
         // Deactivate turning when the turn is done

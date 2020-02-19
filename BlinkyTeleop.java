@@ -43,6 +43,7 @@ public class BlinkyTeleop extends OpMode {
         robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
         telemetry.addData("Initialized", "Initialized");
         telemetry.update();
+        driving.speed = 4;
     }
 
     public void init_loop() {
@@ -94,16 +95,14 @@ public class BlinkyTeleop extends OpMode {
         // -- SPECIAL MOTORS --
 
         // Bumpers run intake
-        /*if(gamepad2.left_bumper) {
-            robot.leftintake.setPower(1);
-            robot.rightintake.setPower(-1);
-        } else if(gamepad2.right_bumper) {
-            robot.leftintake.setPower(-1);
-            robot.rightintake.setPower(1);
-        } else {
-            robot.leftintake.setPower(0);
+        if(!robot.intake_button.getState()) {
             robot.rightintake.setPower(0);
-        }*/
+            robot.leftintake.setPower(0);
+        }
+        if(gamepad2.right_trigger - gamepad2.left_trigger <= 0 || robot.intake_button.getState()) {
+            robot.rightintake.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
+            robot.leftintake.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
+        }
 
         // Triggers run track
         //robot.track.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
@@ -179,7 +178,7 @@ public class BlinkyTeleop extends OpMode {
         else if(gamepad2.dpad_down) robot.platform.setPosition(0.65);
 
         // Automatic alignment
-        double distance = robot.distance.getDistance(DistanceUnit.CM);
+        double distance = robot.distance_alignment.getDistance(DistanceUnit.CM);
         if(gamepad2.right_stick_button && !frontside && distance < 3 && robot.sideliftgrab.getPosition() == 0) {
             aligning = true;
         }
@@ -193,6 +192,7 @@ public class BlinkyTeleop extends OpMode {
                 driving.driive();
                 driving.fieldCentric = prevFC;
                 driving.speed = prevSpeed;
+                if(gamepad2.left_bumper || gamepad2.right_bumper) aligning = false;
             }
             else {
                 grab();
@@ -242,10 +242,11 @@ public class BlinkyTeleop extends OpMode {
         packet.put("angles.second", robot.angles.secondAngle);
         packet.put("angles.third", robot.angles.thirdAngle);
 
-        packet.put("distance", robot.distance.getDistance(DistanceUnit.CM));
+        packet.put("distance_alignment", robot.distance_alignment.getDistance(DistanceUnit.CM));
         packet.put("distance_platform", robot.distance_platform.getDistance(DistanceUnit.CM));
         packet.put("distance_unplat", robot.distance_unplat.getDistance(DistanceUnit.CM));
         packet.put("distance_blockplat", robot.distance_blockplat.getDistance(DistanceUnit.CM));
+        packet.put("intake_button", robot.intake_button.getState());
         packet.put("battery", robot.getBatteryVoltage());
         packet.put("aligning", aligning);
 

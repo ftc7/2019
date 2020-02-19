@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -23,8 +23,8 @@ class Blinky {
     DcMotor three = null;
     DcMotor four = null;
 
-    //CRServo leftintake = null;
-    //CRServo rightintake = null;
+    DcMotor leftintake = null;
+    DcMotor rightintake = null;
     //DcMotor track = null;
     DcMotor sidelift = null;
     //DcMotor frontlift = null;
@@ -39,10 +39,12 @@ class Blinky {
     HardwareMap hwMap = null;
 
     ColorSensor color;
-    DistanceSensor distance;
+    DistanceSensor distance_alignment;
     DistanceSensor distance_platform;
     DistanceSensor distance_unplat;
     DistanceSensor distance_blockplat;
+
+    DigitalChannel intake_button;
 
     Blinky(){}
 
@@ -53,9 +55,9 @@ class Blinky {
         two = ahwMap.dcMotor.get("two");
         three = ahwMap.dcMotor.get("three");
         four = ahwMap.dcMotor.get("four");
+        leftintake = ahwMap.dcMotor.get("leftintake");
+        rightintake = ahwMap.dcMotor.get("rightintake");
 
-        //leftintake = ahwMap.crservo.get("leftintake");
-        //rightintake = ahwMap.crservo.get("rightintake");
         //track = ahwMap.dcMotor.get("track");
         sidelift = ahwMap.dcMotor.get("sidelift");
         //frontlift = ahwMap.dcMotor.get("frontlift");
@@ -63,15 +65,21 @@ class Blinky {
         sideliftgrab = ahwMap.servo.get("sideliftgrab");
         platform = ahwMap.servo.get("platform");
         color = ahwMap.get(ColorSensor.class, "cd_sense");
-        distance = ahwMap.get(DistanceSensor.class, "cd_sense");
+        distance_alignment = ahwMap.get(DistanceSensor.class, "cd_sense");
         distance_platform = ahwMap.get(DistanceSensor.class, "platform_sense");
         distance_unplat = ahwMap.get(DistanceSensor.class, "distance_unplat");
         distance_blockplat = ahwMap.get(DistanceSensor.class, "distance_blockplat");
+
+        intake_button = ahwMap.get(DigitalChannel.class, "intake_button");
+        intake_button.setMode(DigitalChannel.Mode.INPUT);
 
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         three.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         four.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftintake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightintake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightintake.setDirection(DcMotorSimple.Direction.REVERSE);
         //frontlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         sidelift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //track.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -80,6 +88,8 @@ class Blinky {
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftintake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightintake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //track.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
