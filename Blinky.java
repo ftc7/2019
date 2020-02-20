@@ -25,10 +25,7 @@ class Blinky {
 
     DcMotor leftintake = null;
     DcMotor rightintake = null;
-    //DcMotor track = null;
     DcMotor sidelift = null;
-    //DcMotor frontlift = null;
-    //CRServo frontliftgrab = null;
     Servo sideliftgrab = null;
     Servo platform = null;
 
@@ -58,10 +55,7 @@ class Blinky {
         leftintake = ahwMap.dcMotor.get("leftintake");
         rightintake = ahwMap.dcMotor.get("rightintake");
 
-        //track = ahwMap.dcMotor.get("track");
         sidelift = ahwMap.dcMotor.get("sidelift");
-        //frontlift = ahwMap.dcMotor.get("frontlift");
-        //frontliftgrab = ahwMap.crservo.get("frontliftgrab");
         sideliftgrab = ahwMap.servo.get("sideliftgrab");
         platform = ahwMap.servo.get("platform");
         color = ahwMap.get(ColorSensor.class, "cd_sense");
@@ -80,9 +74,7 @@ class Blinky {
         leftintake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightintake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightintake.setDirection(DcMotorSimple.Direction.REVERSE);
-        //frontlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         sidelift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //track.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -90,9 +82,7 @@ class Blinky {
         four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftintake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightintake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //track.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;

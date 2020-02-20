@@ -21,7 +21,6 @@ public class BlinkyTeleop extends OpMode {
     private Driive driving = new Driive();
 
     private double angle1 = 0.0;
-    private boolean frontside = false;
     private double sideliftspeed = 1;
     private boolean runningside = false;
     private boolean aligning = false;
@@ -39,8 +38,6 @@ public class BlinkyTeleop extends OpMode {
         }
         robot.sidelift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        /*robot.frontlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
         telemetry.addData("Initialized", "Initialized");
         telemetry.update();
         driving.speed = 4;
@@ -94,7 +91,7 @@ public class BlinkyTeleop extends OpMode {
 
         // -- SPECIAL MOTORS --
 
-        // Bumpers run intake
+        // Triggers run intake
         if(!robot.intake_button.getState()) {
             robot.rightintake.setPower(0);
             robot.leftintake.setPower(0);
@@ -104,63 +101,41 @@ public class BlinkyTeleop extends OpMode {
             robot.leftintake.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
         }
 
-        // Triggers run track
-        //robot.track.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
-
-        // x sets frontside to front lift, y to side
-        if(gamepad2.x) frontside = false;
-        if(gamepad2.y) frontside = true;
-
-        // Lift up/down based on frontside
+        // Lift up/down
         double sideliftpower = gamepad2.left_stick_y * sideliftspeed;
         double sideliftpos = robot.sidelift.getCurrentPosition();
-        // Front lift
-        /*if(frontside) {
-            if((robot.frontlift.getCurrentPosition() > 0 && gamepad2.left_stick_y > 0) ||
-                    (robot.frontlift.getCurrentPosition() < -4000 && gamepad2.left_stick_y < 0)) {
-                robot.frontlift.setPower(0);
-            }
-            else robot.frontlift.setPower(gamepad2.left_stick_y / 6);
-        }
-        // Side lift
-        else {*/
-            // If the joystick is being used
-            if(sideliftpower != 0) {
-                runningside = false;
-                grabbing = false;
+        if(sideliftpower != 0) {
+            runningside = false;
+            grabbing = false;
 
-                robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                // If it's outside the range, don't run
-                if((sideliftpos > 0 && sideliftpower > 0) /*|| (sideliftpos < -4500 && sideliftpower < 0)*/) {
-                    robot.sidelift.setPower(0);
-                }
-                // Otherwise run
-                else robot.sidelift.setPower(sideliftpower);
+            robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // If it's outside the range, don't run
+            if((sideliftpos > 0 && sideliftpower > 0) /*|| (sideliftpos < -4500 && sideliftpower < 0)*/) {
+                robot.sidelift.setPower(0);
             }
-            // Run all the way down when button is pushed
-            else if(gamepad2.left_stick_button) {
-                grabbing = false;
-                robot.sidelift.setTargetPosition(0);
-                robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.sidelift.setPower(1);
-                runningside = true;
-            }
-            else if(!runningside) {
-                //if(prev2.left_stick_y != 0) {
-                    robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition());
-                //}
-                robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.sidelift.setPower(1);
-            }
-        //}
+            // Otherwise run
+            else robot.sidelift.setPower(sideliftpower);
+        }
+        // Run all the way down when button is pushed
+        else if(gamepad2.left_stick_button) {
+            grabbing = false;
+            robot.sidelift.setTargetPosition(0);
+            robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.sidelift.setPower(1);
+            runningside = true;
+        }
+        else if(!runningside) {
+            robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition());
+            robot.sidelift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.sidelift.setPower(1);
+        }
 
         // Side lift speed from A/B
         if(gamepad2.a) sideliftspeed = 1;
         if(gamepad2.b) sideliftspeed = .1;
 
         // Right stick X controls current lift grabber
-        /*if(frontside) robot.frontliftgrab.setPower(gamepad2.right_stick_x);
-        else*/   if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
+        if(gamepad2.right_stick_y < 0) robot.sideliftgrab.setPosition(0);
         else if(gamepad2.right_stick_y > 0) {
             grab();
         }
@@ -179,7 +154,7 @@ public class BlinkyTeleop extends OpMode {
 
         // Automatic alignment
         double distance = robot.distance_alignment.getDistance(DistanceUnit.CM);
-        if(gamepad2.right_stick_button && !frontside && distance < 3 && robot.sideliftgrab.getPosition() == 0) {
+        if(gamepad2.right_stick_button && distance < 3 && robot.sideliftgrab.getPosition() == 0) {
             aligning = true;
         }
         if(aligning) {
@@ -211,9 +186,6 @@ public class BlinkyTeleop extends OpMode {
         telemetry.addData("Field centric", driving.fieldCentric);
         telemetry.addData("Righteous", driving.righteous);
         telemetry.addData("Speed", driving.speed);
-        telemetry.addData("","");
-        if(frontside) telemetry.addData("LIFT", "FRONT");
-        else telemetry.addData("LIFT", "SIDE");
 
         TelemetryPacket packet =  new TelemetryPacket();
 
@@ -221,22 +193,11 @@ public class BlinkyTeleop extends OpMode {
         packet.put("righteous", driving.righteous);
         packet.put("speed", driving.speed / 10);
 
-        packet.put("frontside", frontside);
-
-
-        /*packet.put("power.frontlift", robot.frontlift.getPower());
-        packet.put("position.frontlift", robot.frontlift.getCurrentPosition());*/
         packet.put("power.sidelift", robot.sidelift.getPower());
         packet.put("position.sidelift", robot.sidelift.getCurrentPosition());
-        //packet.put("power.track", robot.track.getPower());
-        //packet.put("position.track", robot.track.getCurrentPosition());
-        //packet.put("one.power", robot.one.getPower());
         packet.put("position.one", robot.one.getCurrentPosition());
-        //packet.put("two.power", robot.two.getPower());
         packet.put("position.two", robot.two.getCurrentPosition());
-        //packet.put("three.power", robot.three.getPower());
         packet.put("position.three", robot.three.getCurrentPosition());
-        //packet.put("four.power", robot.four.getPower());
         packet.put("position.four", robot.four.getCurrentPosition());
         packet.put("angles.first", robot.angles.firstAngle);
         packet.put("angles.second", robot.angles.secondAngle);
