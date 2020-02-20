@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Bitmap;
+import android.graphics.RectF;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -254,4 +257,61 @@ class SkystoneNav {
             return false;
         }
     }
+
+    /*Bitmap getBitmap(RectF rect, float scale, int height, int width) {
+        try {
+            VuforiaLocalizer.CloseableFrame frame = mFrameQueue.take();
+            int img = 0;
+            for (; img < frame.getNumImages(); img++) {
+                //telemetry.addData("Image format " + img, frame.getImage(img).getFormat());
+                if (frame.getImage(img).getFormat() == PIXEL_FORMAT.RGB565) break;
+            }
+
+            if (img == frame.getNumImages()) throw new IllegalArgumentException("Incorrect format");
+
+            // get the Image with the correct format and extract its data
+            Image image = frame.getImage(img);
+            ByteBuffer byteBuffer = image.getPixels();
+
+            int h = image.getHeight();    // height of src data
+            int w = image.getWidth();     // width of src data
+
+            // convert the data to a Bitmap
+            byteBuffer.rewind();
+            Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
+            bitmap.copyPixelsFromBuffer(byteBuffer);
+
+            // crop the Bitmap if requested
+            Bitmap bitmapCropped = bitmap;
+            int ch = Math.round(h*rect.height());    // height of cropped src data
+            int cw = Math.round(w*rect.width());     // width of cropped src data
+            if (ch < h || cw < w) {
+                bitmapCropped = Bitmap.createBitmap(bitmap,
+                        Math.max(0, Math.round(w*rect.left)), Math.max(0, Math.round(h*rect.top)), cw, ch);
+                h = ch; w = cw;
+            }
+
+            // get requested output size in one of several ways
+            int dstW = cw;
+            int dstH = ch;
+            if (width>0 && height>0) {
+                dstW = width;
+                dstH = height;
+            }
+            else if (scale > 0) {
+                dstW = (int)(cw*scale);
+                dstH = (int)(ch*scale);
+            }
+
+            // scale the (possibly cropped) result bitmap to the requested size
+            Bitmap bitmapScaled = Bitmap.createScaledBitmap(bitmapCropped, dstW, dstH, true);
+
+            frame.close();
+
+            return bitmapScaled;
+        }
+        catch (Exception e) {}
+
+        return null;
+    }*/
 }

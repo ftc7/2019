@@ -29,8 +29,8 @@ class Driive {
         this.minTurnSpeed = minTurnSpeed;
     }
 
-    private double turnThreshold = 0.05;
-    private double minTurnSpeed = 0.05;
+    private double turnThreshold = 0;
+    private double minTurnSpeed = 0;
 
     private double[] wheelPowers;
 

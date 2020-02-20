@@ -35,12 +35,16 @@ public class BlinkyTeleop extends OpMode {
         try {
             driving.init(wheels, angles);
         } catch(Exception e) {
+            telemetry.addData("Wheels and wheelAngles are not the same length!", "");
+            telemetry.update();
         }
         robot.sidelift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.sidelift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         telemetry.addData("Initialized", "Initialized");
         telemetry.update();
         driving.speed = 4;
+        driving.setMinTurnSpeed(0.08);
+        driving.setTurnThreshold(0.05);
     }
 
     public void init_loop() {

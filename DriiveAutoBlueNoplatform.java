@@ -10,7 +10,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.C
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 import static java.lang.Math.PI;
 
-@Autonomous(name="-platform blue", group="blue")
+@Autonomous(name="no platform blue", group="blue")
 public class DriiveAutoBlueNoplatform extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private FtcDashboard dashboard = FtcDashboard.getInstance();
