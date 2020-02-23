@@ -69,6 +69,11 @@ class Driive {
     int speed = 10;
 
     /**
+     * Automatic turning speed
+     */
+    double turnSpeed = 1;
+
+    /**
      * Initializes the Driive instance<br>
      * Called once in init
      *
@@ -231,15 +236,15 @@ class Driive {
             else {
                 this.r = r;
             }
-            if(this.r < 0.4) {
-                this.r = 0.4;
+            if(this.r < 0.1) {
+                this.r = 0.1;
             }
             //this.r = r;
             this.theta = theta;
             driive();
 
             // Stop driving
-            if (abs(total) > abs(distance) && turn == 0) break;
+            if (abs(total) > abs(distance) && turn < 0.05) break;
         }
 
         // Stop driving
@@ -373,7 +378,7 @@ class Driive {
         if(righteous || turning) {
             // Sets amount to turn based on target position
             if(turn == 0.0) {
-                turn = -pow(wrap(currentAngle - setAngle), 3);
+                turn = -pow(wrap(currentAngle - setAngle), 3) * turnSpeed;
             }
             // Sets target to current if user is manually turning
             else {

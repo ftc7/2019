@@ -15,7 +15,7 @@ public class DriiveTeleop extends OpMode {
     private DriivePrototypeHardware robot = new DriivePrototypeHardware();
     //private gpPrev1 prev1 = new gpPrev1();
     private Gamepad prev1 = new Gamepad();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private Driive driving = new Driive();
 
     private double angle1 = 0.0;

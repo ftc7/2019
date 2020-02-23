@@ -13,7 +13,7 @@ import static java.lang.Math.PI;
 @Autonomous(name="no platform blue", group="blue")
 public class DriiveAutoBlueNoplatform extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
     private double clicksPerMm = .6;

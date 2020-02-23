@@ -14,7 +14,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.C
 public class PlatformBlue extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private double clicksPerMm = .6;
     private double autospeed = 0.4;
 

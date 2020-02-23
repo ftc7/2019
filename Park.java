@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class Park extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private double clicksPerMm = .6;
 
     public void runOpMode() {

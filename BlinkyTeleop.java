@@ -17,14 +17,14 @@ public class BlinkyTeleop extends OpMode {
     private Gamepad prev1 = new Gamepad();
     private Gamepad prev2 = new Gamepad();
     private int prevSpeed = 0;
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private Driive driving = new Driive();
 
     private double angle1 = 0.0;
     private double sideliftspeed = 1;
     private boolean runningside = false;
     private boolean aligning = false;
-    private boolean grabbing = true;
+    private boolean grabbing = false;
     private double grabtime = 0;
 
     public void init() {
@@ -221,7 +221,7 @@ public class BlinkyTeleop extends OpMode {
     }
 
     private void grab() {
-        robot.sideliftgrab.setPosition(0.6);
+        robot.sideliftgrab.setPosition(0.8);
         grabbing = true;
         grabtime = getRuntime();
     }

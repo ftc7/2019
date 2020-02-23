@@ -12,7 +12,7 @@ import static java.lang.Math.PI;
 public class ParkLeftDelay extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private double clicksPerMm = .6;
 
     public void runOpMode() {

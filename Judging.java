@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class Judging extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
 
     public void runOpMode() {
 

@@ -13,7 +13,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.m
 @Autonomous(name="full red", group="bred")
 public class DriiveAutoRed extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
     private double clicksPerMm = .6;
@@ -45,10 +45,10 @@ public class DriiveAutoRed extends LinearOpMode implements TeleAuto {
         updateTelemetry(telemetry);
 
         waitForStart();
+        driving.resetZero();
 
         // Drive to look at the blocks
-        driving.polarAuto(autospeed, PI / 2, 450 * clicksPerMm, this, 100);
-        driving.stopWheels();
+        driving.polarAuto(autospeed, PI / 2, 450 * clicksPerMm, this);
 
         // Open the side lift grabber
         robot.sideliftgrab.setPosition(0);
@@ -117,7 +117,7 @@ public class DriiveAutoRed extends LinearOpMode implements TeleAuto {
         // Drive across the field, drop
         driving.polarAuto(autospeed / 2, PI, 1000 * clicksPerMm, this, 0, false, false);
         robot.sidelift.setTargetPosition(robot.sidelift.getTargetPosition() - 1000);
-        driving.polarAuto(autospeed / 2, PI, 1000 * clicksPerMm, this, 200, false, true);
+        driving.polarAuto(autospeed / 2, PI, 1100 * clicksPerMm, this, 200, false, true);
         driving.stopWheels();
         sleep(100);
         //driving.polarAuto(0, 0, 0, this);
@@ -178,7 +178,7 @@ public class DriiveAutoRed extends LinearOpMode implements TeleAuto {
         while(robot.distance_alignment.getDistance(CM) > 5 && getRuntime() < runtime + 1 && opModeIsActive());
         driving.stopWheels();
         sleep(300);
-        robot.sideliftgrab.setPosition(0.6);
+        robot.sideliftgrab.setPosition(0.8);
         sleep(500);
         robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() - 200);
         robot.sidelift.setPower(0.5);

@@ -6,14 +6,18 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import static java.lang.Math.PI;
+
 @Autonomous(name="no platform red", group="bred")
 public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
-    private double clicksPerMm = .82;
-    private double autospeed = 0.5;
-    private FtcDashboard dashboard = FtcDashboard.getInstance();
+    private double clicksPerMm = .6;
+    private double autospeed = .5;
+    private FailsafeDashboard dashboard = new FailsafeDashboard();
 
     public void runOpMode() {
 
@@ -25,6 +29,8 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
             driving.init(wheels, angles);
         } catch(Exception e) {
         }
+
+        driving.turnSpeed = 0.2;
 
         vuforia.initVuforia(hardwareMap, dashboard);
         vuforia.activateVuforia();
@@ -40,7 +46,9 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
         waitForStart();
         driving.resetZero();
 
-        driving.polarAuto(autospeed, Math.PI / 2, 500 * clicksPerMm, this);                 // Drive to look at the blocks
+        // Drive to look at the blocks
+        driving.polarAuto(autospeed, Math.PI / 2, 500 * clicksPerMm, this, 150, false, true);
+        driving.stopWheels();
 
         // Open the side lift grabber
         robot.sideliftgrab.setPosition(0);
@@ -48,28 +56,15 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
         // Give Vuforia a second to locate the block
         double looptime = getRuntime();
         int position = 0;
-        boolean seenblock = false;
         while(opModeIsActive() && getRuntime() < looptime + 1) {
-
             // Locates the block and determines which position it is in
             if(vuforia.updateVuforia()) {
-                if(vuforia.translation.get(1) > 0) {
-                    position = 3;
-                }
-                else if(vuforia.translation.get(1) > -205) {
-                    position = 2;
-                }
-                else {
-                    position = 1;
-                }
-
-                seenblock = true;
+                if(vuforia.translation.get(1) > 0) position = 3;
+                else if(vuforia.translation.get(1) > -205) position = 2;
+                else position = 1;
             }
             // If we can't see it, it's in the far left position
-            else {
-                position = 1;
-            }
-
+            else position = 1;
         }
 
         // Set the side lift to RUN_TO_POSITION
@@ -81,81 +76,67 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
         // Drive to block
         switch(position) {
             case 1:     // block on left
-                driving.polarAuto(0.5, 0, 300 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.5, 0, 200 * clicksPerMm, this);       // in front of block
                 grabBlock();
-                driving.polarAuto(0.5, Math.PI, -360 * clicksPerMm, this);    // to standard position
+                driving.polarAuto(0.5, PI, 150 * clicksPerMm, this, 0, false, false);    // to standard position
                 break;
             case 2:
-                driving.polarAuto(0.5, 0, 50 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.1, 0, 10, this);    // to standard position
                 grabBlock();
-                driving.polarAuto(0.5, Math.PI, -100 * clicksPerMm, this);    // to standard position
+                driving.polarAuto(0.5, PI, 60 * clicksPerMm, this, 0, false, false);    // to standard position
                 break;
             case 3:
-                driving.polarAuto(0.5, Math.PI, -30 * clicksPerMm, this);       // in front of block
+                driving.polarAuto(0.5, PI, 30 * clicksPerMm, this);       // in front of block
                 grabBlock();
-                //driving.polarAuto(0.5, Math.PI * 3 / 2, 0, this);    // to standard position
+                driving.polarAuto(0.5, PI, 20 * clicksPerMm, this, 0, false, false);    // to standard position
                 break;
         }
 
-        // Turns to the position set with turnAbs while driving across field
-        //driving.turnAbs(pi);
-        //driving.polarAuto(0, 0, 0, this);
-        //driving.turnAbs(pi);
+        // Drive to platform
+        driving.polarAuto(autospeed, PI, 1000 * clicksPerMm, this, 0, true, false);
+        robot.sidelift.setTargetPosition(robot.sidelift.getTargetPosition() - 1000);
+        driving.polarAuto(autospeed, PI, 1400 * clicksPerMm, this, 100, false, true);
 
-        // Drive across the field, drop
-        driving.polarAuto(autospeed, pi, 1200 * clicksPerMm, this);
-        vuforia.setFlash(false);
+        // to platform w/ sensor
+        driving.polarAuto(0.2, PI / 2, 500 * clicksPerMm, this, 0, true, false);
+        looptime = getRuntime();
+        while(robot.distance_platform.getDistance(DistanceUnit.CM) > 100 && opModeIsActive() && getRuntime() < looptime + 1);
+        driving.stopWheels();
+
+        // let go of block
         robot.sideliftgrab.setPosition(0);
-        driving.polarAuto(0.5, pi/2, 100 * clicksPerMm, this);
-        driving.polarAuto(0.5, pi*3/2, 100 * clicksPerMm, this);
-        //robot.leftintake.setPower(-1);
-        //robot.rightintake.setPower(1);
+        sleep(200);
 
-        // Drive to the foundation
-        /*driving.polarAuto(autospeed, 2.4, 800 * clicksPerMm, this);
-        // Grab the platform
-        robot.platform.setPosition(0.9);
+        // away from platform
+        driving.polarAuto(autospeed, 3 * PI / 2, 200 * clicksPerMm, this);
 
-        sleep(300);
+        // back across field
+        robot.sidelift.setTargetPosition(0);
+        driving.turnAbs(PI / 2);
+        driving.polarAuto(0, 0, 0, this);
+        driving.polarAuto(autospeed, 0, 2000 * clicksPerMm, this, 100);
 
-        // Turn with the platform
-        driving.polarAutoTurn(autospeed, pi/2, 1300 * clicksPerMm, this, 0.5);
-
-        driving.polarAutoTurn(autospeed, 3*pi/2, 900 * clicksPerMm, this, -0.2);
-
-        robot.platform.setPosition(0.4);*/
-
-        driving.polarAuto(autospeed, 0.5, 500 * clicksPerMm, this);
+        // to block
+        driving.polarAuto(autospeed, PI / 2, 500 * clicksPerMm, this, 100);
     }
-
-    /*private void driveAnywhere(double x, double y, double speed, SkystoneNav vuforia) {
-        while(opModeIsActive() && !vuforia.updateVuforia());
-        double dx = x - vuforia.translation.get(0);
-        double dy = y - vuforia.translation.get(1);
-        double theta = Math.atan2(dx, dy);
-        double r = Math.sqrt(dx * dx + dy * dy);
-        sleep(500);
-        sleep(5000);
-        //driving.polarAuto(speed, theta, r, this);
-        driving.polarAuto(speed, Math.PI, dx, this);
-        driving.polarAuto(speed, Math.PI/2, dy, this);
-    }*/
 
     private void grabBlock() {
-        driving.polarAuto(0.4, Math.PI / 2, 350 * clicksPerMm, this);                   // to block
-        robot.sideliftgrab.setPosition(0.6);
+        // to block
+        driving.polarAuto(0.3, Math.PI / 2, 100, this, 0, false, false);
+        while(opModeIsActive() && robot.distance_alignment.getDistance(DistanceUnit.CM) > 4 && !(robot.distance_blockplat.getDistance(DistanceUnit.CM) < 30));
+        driving.stopWheels();
+
+        //grab block
+        robot.sideliftgrab.setPosition(0.8);
         sleep(500);
-        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() + 100);
+        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() - 100);
         robot.sidelift.setPower(0.5);
         sleep(500);
-        driving.polarAuto(0.4, Math.PI * 3/2, 350 * clicksPerMm, this);                  // away from block
+
+        // away from block
+        driving.polarAuto(0.3, Math.PI * 3/2, 280 * clicksPerMm, this, 100);
     }
-/*
-                .setStrokeWidth(1)
-                .setStroke("black")
-                .fillCircle(vuforia.translation.get(0) / mmPerInch, vuforia.translation.get(1) / mmPerInch, 5)
-                .setFill("black");
-    }*/
+
     public void updateAuto(TelemetryPacket packet) {
         dashboard.sendTelemetryPacket(packet);
         robot.updateGyro();
