@@ -244,7 +244,7 @@ class Driive {
             driive();
 
             // Stop driving
-            if (abs(total) > abs(distance) && turn < 0.05) break;
+            if (abs(total) > abs(distance) && turn < 0.01) break;
         }
 
         // Stop driving

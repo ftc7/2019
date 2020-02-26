@@ -30,7 +30,7 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
         } catch(Exception e) {
         }
 
-        driving.turnSpeed = 0.2;
+        driving.turnSpeed = 0.6;
 
         vuforia.initVuforia(hardwareMap, dashboard);
         vuforia.activateVuforia();
@@ -59,6 +59,9 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
         while(opModeIsActive() && getRuntime() < looptime + 1) {
             // Locates the block and determines which position it is in
             if(vuforia.updateVuforia()) {
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.put("x", vuforia.translation.get(1));
+                dashboard.sendTelemetryPacket(packet);
                 if(vuforia.translation.get(1) > 0) position = 3;
                 else if(vuforia.translation.get(1) > -205) position = 2;
                 else position = 1;
@@ -81,9 +84,9 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
                 driving.polarAuto(0.5, PI, 150 * clicksPerMm, this, 0, false, false);    // to standard position
                 break;
             case 2:
-                driving.polarAuto(0.1, 0, 10, this);    // to standard position
+                driving.polarAuto(0.1, 0, 90 * clicksPerMm, this);    // to standard position
                 grabBlock();
-                driving.polarAuto(0.5, PI, 60 * clicksPerMm, this, 0, false, false);    // to standard position
+                driving.polarAuto(0.5, PI, 140 * clicksPerMm, this, 0, false, false);    // to standard position
                 break;
             case 3:
                 driving.polarAuto(0.5, PI, 30 * clicksPerMm, this);       // in front of block
@@ -113,7 +116,7 @@ public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
         // back across field
         robot.sidelift.setTargetPosition(0);
         driving.turnAbs(PI / 2);
-        driving.polarAuto(0, 0, 0, this);
+        //driving.polarAuto(0, 0, 0, this);
         driving.polarAuto(autospeed, 0, 2000 * clicksPerMm, this, 100);
 
         // to block

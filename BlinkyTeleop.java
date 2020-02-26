@@ -25,6 +25,7 @@ public class BlinkyTeleop extends OpMode {
     private boolean runningside = false;
     private boolean aligning = false;
     private boolean grabbing = false;
+    private boolean presetturning = false;
     private double grabtime = 0;
 
     public void init() {
@@ -68,10 +69,26 @@ public class BlinkyTeleop extends OpMode {
 
         if(gamepad1.left_bumper) angle1 = currentAngle;
         if(gamepad1.right_bumper) driving.turnAbs(angle1);
-        if(gamepad1.dpad_up) driving.turnAbs(0);
-        else if(gamepad1.dpad_down) driving.turnAbs(Math.PI);
-        else if(gamepad1.dpad_left) driving.turnAbs(Math.PI / 2);
-        else if(gamepad1.dpad_right) driving.turnAbs(Math.PI * 3 / 2);
+        if(gamepad1.dpad_up) {
+            driving.turnAbs(0);
+            driving.righteous = true;
+            presetturning = true;
+        }
+        else if(gamepad1.dpad_down) {
+            driving.turnAbs(Math.PI);
+            driving.righteous = true;
+            presetturning = true;
+        }
+        else if(gamepad1.dpad_left) {
+            driving.turnAbs(Math.PI / 2);
+            driving.righteous = true;
+            presetturning = true;
+        }
+        else if(gamepad1.dpad_right) {
+            driving.turnAbs(Math.PI * 3 / 2);
+            driving.righteous = true;
+            presetturning = true;
+        }
 
         if(gamepad1.x && !prev1.x) driving.fieldCentric = !driving.fieldCentric;
         if(gamepad1.y && !prev1.y) driving.righteous = !driving.righteous;
@@ -87,6 +104,11 @@ public class BlinkyTeleop extends OpMode {
         }
         else if(!gamepad1.right_stick_button && prev1.right_stick_button) {
             driving.speed = prevSpeed;
+        }
+
+        if(gamepad1.right_stick_x != 0 && presetturning) {
+            driving.righteous = false;
+            presetturning = false;
         }
 
         try {
