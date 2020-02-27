@@ -14,6 +14,7 @@ class Driive {
     private DcMotor[] wheels;
     private double[] wheelAngles;
     private double zero;
+    double getZero() { return zero; }
     private double r;
     private double theta;
     private double currentAngle;
@@ -354,12 +355,12 @@ class Driive {
     }
 
     /**
-     * Turns to a specified angle
+     * Turns to a specified angle, relative to the field, including zero
      *
      * @param angle The angle to turn to
      */
     void turnAbs(double angle) {
-        setAngle = zero + angle;
+        setAngle = angle + zero;
         turning = true;
     }
 
@@ -379,18 +380,19 @@ class Driive {
             // Sets amount to turn based on target position
             if(turn == 0.0) {
                 turn = -pow(wrap(currentAngle - setAngle), 3) * turnSpeed;
+
+                // Avoids low power/squeaking motors, if not driving
+                if(r == 0) {
+                    if(abs(turn) < turnThreshold) turn = 0;
+                    if(turn < minTurnSpeed && turn > turnThreshold) turn = minTurnSpeed;
+                    if(turn > -minTurnSpeed && turn < -turnThreshold) turn = -minTurnSpeed;
+                }
             }
             // Sets target to current if user is manually turning
             else {
                 setAngle = currentAngle;
             }
 
-            // Avoids low power/squeaking motors, if not driving
-            if(r != 0) {
-                if(abs(turn) < turnThreshold) turn = 0;
-                if(turn < minTurnSpeed && turn > turnThreshold) turn = minTurnSpeed;
-                if(turn > -minTurnSpeed && turn < -turnThreshold) turn = -minTurnSpeed;
-            }
         }
 
         // Deactivate turning when the turn is done

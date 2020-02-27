@@ -16,6 +16,9 @@ public abstract class BlinkyAuto extends LinearOpMode implements TeleAuto {
     private double autospeed = .5;
     private FailsafeDashboard dashboard = new FailsafeDashboard();
 
+    /**
+     * Initializes vuforia, Driive, etc.
+     */
     private void initRobot() {
         robot.init(hardwareMap);
         DcMotor[] wheels = {robot.one, robot.two, robot.three, robot.four};

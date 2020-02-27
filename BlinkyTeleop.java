@@ -44,8 +44,8 @@ public class BlinkyTeleop extends OpMode {
         telemetry.addData("Initialized", "Initialized");
         telemetry.update();
         driving.speed = 4;
-        driving.setMinTurnSpeed(0.08);
-        driving.setTurnThreshold(0.05);
+        driving.setMinTurnSpeed(0.2);
+        driving.setTurnThreshold(.05);
     }
 
     public void init_loop() {
@@ -68,23 +68,27 @@ public class BlinkyTeleop extends OpMode {
         // -- CONTROLS --
 
         if(gamepad1.left_bumper) angle1 = currentAngle;
-        if(gamepad1.right_bumper) driving.turnAbs(angle1);
-        if(gamepad1.dpad_up) {
+        if(gamepad1.right_bumper) {
+            driving.turnAbs(angle1 - driving.getZero());
+            driving.righteous = true;
+            presetturning = true;
+        }
+        if(gamepad1.dpad_down) {
             driving.turnAbs(0);
             driving.righteous = true;
             presetturning = true;
         }
-        else if(gamepad1.dpad_down) {
+        else if(gamepad1.dpad_up) {
             driving.turnAbs(Math.PI);
             driving.righteous = true;
             presetturning = true;
         }
-        else if(gamepad1.dpad_left) {
+        else if(gamepad1.dpad_right) {
             driving.turnAbs(Math.PI / 2);
             driving.righteous = true;
             presetturning = true;
         }
-        else if(gamepad1.dpad_right) {
+        else if(gamepad1.dpad_left) {
             driving.turnAbs(Math.PI * 3 / 2);
             driving.righteous = true;
             presetturning = true;
@@ -122,9 +126,10 @@ public class BlinkyTeleop extends OpMode {
             robot.rightintake.setPower(0);
             robot.leftintake.setPower(0);
         }
-        if(gamepad2.right_trigger - gamepad2.left_trigger <= 0 || robot.intake_button.getState()) {
-            robot.rightintake.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
-            robot.leftintake.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
+        double intakespeed =  (gamepad2.left_trigger + gamepad1.left_trigger) - (gamepad2.right_trigger + gamepad1.right_trigger);
+        if(intakespeed >= 0 || robot.intake_button.getState()) {
+            robot.rightintake.setPower(intakespeed);
+            robot.leftintake.setPower(intakespeed);
         }
 
         // Lift up/down

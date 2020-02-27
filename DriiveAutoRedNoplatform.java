@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import static java.lang.Math.PI;
 
 @Autonomous(name="no platform red", group="bred")
-public class DriiveAutoRedNoplatform extends LinearOpMode implements TeleAuto {
+public class DriiveAutoRedNoplatform extends BlinkyAuto {
     private Blinky robot = new Blinky();
     private Driive driving = new Driive();
     private SkystoneNav vuforia = new SkystoneNav();
