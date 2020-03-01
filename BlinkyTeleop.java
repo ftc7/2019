@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -131,6 +130,11 @@ public class BlinkyTeleop extends OpMode {
             robot.rightintake.setPower(intakespeed);
             robot.leftintake.setPower(intakespeed);
         }
+
+        // Bumpers run tape measure
+        if(gamepad2.right_bumper) robot.tape.setPower(-1);
+        else if(gamepad2.left_bumper) robot.tape.setPower(1);
+        else robot.tape.setPower(0);
 
         // Lift up/down
         double sideliftpower = gamepad2.left_stick_y * sideliftspeed;

@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.CM;
@@ -11,40 +9,12 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.m
 import static java.lang.Math.PI;
 
 @Autonomous(name="full blue", group="blue")
-public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
-    private Blinky robot = new Blinky();
-    private FailsafeDashboard dashboard = new FailsafeDashboard();
-    private Driive driving = new Driive();
-    private SkystoneNav vuforia = new SkystoneNav();
-    private double clicksPerMm = .6;
-    private double autospeed = 1;
-
+public class DriiveAutoBlue extends BlinkyAuto {
     public void runOpMode() {
-        robot.init(hardwareMap);
-        DcMotor[] wheels = {robot.one, robot.two, robot.three, robot.four};
-        double[] angles = {PI / 4, PI * 3 / 4, PI * 5 / 4, PI * 7 / 4};
-        try {
-            driving.init(wheels, angles);
-        } catch(Exception e) {
-        }
-
-        driving.speed = 10;
-
-        vuforia.initVuforia(hardwareMap, dashboard);
-        vuforia.activateVuforia();
-        vuforia.setFlash(true);
-
-        /*while(!isStarted()) {
-            TelemetryPacket packet = new TelemetryPacket();
-            if(vuforia.updateVuforia()) {
-                vuforiaTelemetry(vuforia, packet);
-            }
-            dashboard.sendTelemetryPacket(packet);
-        }*/
-        telemetry.addData("ready", "ready");
-        updateTelemetry(telemetry);
+        initRobot(BLUE);
 
         waitForStart();
+        driving.resetZero();
 
         // Drive to look at the blocks
         driving.polarAuto(autospeed, PI / 2, 450 * clicksPerMm, this, 100);
@@ -95,17 +65,17 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         switch(position) {
             case 1:     // block on right
                 driving.polarAuto(0.5, PI, -160 * clicksPerMm, this);       // in front of block
-                grabBlock();
+                grabBlock(370);
                 driving.polarAuto(0.5, 0, 200 * clicksPerMm, this, 0);    // to standard position
                 break;
             case 2:
                 driving.polarAuto(0.5, Math.PI, -0 * clicksPerMm, this);       // in front of block
-                grabBlock();
+                grabBlock(370);
                 driving.polarAuto(0.5, 0, 40 * clicksPerMm, this, 0);    // to standard position
                 break;
             case 3:
                 driving.polarAuto(0.5, 0, 20 * clicksPerMm, this);       // in front of block
-                grabBlock();
+                grabBlock(370);
                 //driving.polarAuto(0.5, Math.PI * 3 / 2, 0, this);    // to standard position
                 break;
         }
@@ -170,21 +140,6 @@ public class DriiveAutoBlue extends LinearOpMode implements TeleAuto {
         driving.polarAuto(autospeed, PI, 380, this);*/
         driving.stopWheels();
         sleep(5000);
-    }
-
-    private void grabBlock() {
-        driving.polarAuto(0.2, Math.PI / 2, 300 * clicksPerMm, this, 50);                   // to block
-        double runtime = getRuntime();
-        while(robot.distance_alignment.getDistance(CM) > 5 && getRuntime() < runtime + 1 && opModeIsActive());
-        driving.stopWheels();
-        sleep(300);
-        robot.sideliftgrab.setPosition(0.6);
-        sleep(500);
-        robot.sidelift.setTargetPosition(robot.sidelift.getCurrentPosition() - 200);
-        robot.sidelift.setPower(0.5);
-        sleep(500);
-        driving.setBrake(true);
-        driving.polarAuto(0.4, Math.PI * 3/2, 370 * clicksPerMm, this);                  // away from block
     }
 
     private void vuforiaTelemetry(SkystoneNav instance, TelemetryPacket packet) {

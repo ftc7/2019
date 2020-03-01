@@ -207,6 +207,8 @@ class Driive {
             wheelDistances[i] = wheels[i].getCurrentPosition();
         }
 
+        double totaltotal = 0;
+
         while(callback.opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
 
@@ -214,25 +216,36 @@ class Driive {
             double total = 0;
             for(int i = 0; i < wheels.length; i++) {
                 packet.put("wheel position " + i, wheels[i].getCurrentPosition());
-                double currentWheelSin = sin(wheelAngles[i] - theta);
+                double wheelSin = sin(wheelAngles[i] - theta - currentAngle);
+                packet.put("wheel sin " + i, wheelSin);
                 double wheelDistance = wheels[i].getCurrentPosition() - wheelDistances[i];
-                double wheelRobotDistance = currentWheelSin * wheelDistance;
+                packet.put("wheel distance " + i, wheelDistance);
+                double wheelRobotDistance = wheelSin * wheelDistance;
+                packet.put("wheel robot distance " + i, wheelRobotDistance);
                 total += wheelRobotDistance;
             }
             total /= wheels.length;
+            //total = abs(total);
+
+            totaltotal += total;
+
+            for(int i = 0; i < wheels.length; i++) {
+                wheelDistances[i] = wheels[i].getCurrentPosition();
+            }
 
             // Add data to telemetry
             updateTelemetry(packet);
             packet.put("total", total);
+            packet.put("totaltotal", totaltotal);
             callback.updateAuto(packet);
 
             // Drive
             this.turn = 0;
-            if(total < (slowclicks / 10) && curvein) {
-                this.r = r * total / (slowclicks / 10);
+            if(totaltotal < (slowclicks / 10) && curvein) {
+                this.r = r * totaltotal / (slowclicks / 10);
             }
-            else if(total > (abs(distance) - slowclicks) && curveout) {
-                this.r = r * (distance - total) / slowclicks;
+            else if(totaltotal > (abs(distance) - slowclicks) && curveout) {
+                this.r = r * (distance - totaltotal) / slowclicks;
             }
             else {
                 this.r = r;
@@ -245,7 +258,8 @@ class Driive {
             driive();
 
             // Stop driving
-            if (abs(total) > abs(distance) && turn < 0.01) break;
+            if (abs(totaltotal) > abs(distance) && turn < 0.01) break;
+
         }
 
         // Stop driving
@@ -305,8 +319,9 @@ class Driive {
             driive();
 
             // Stop driving
-            if(turn > 0 && wrap(currentAngle - setAngle) > 0) break;
-            else if(wrap(currentAngle - setAngle) < 0) break;
+            /*if(turn > 0 && wrap(currentAngle - setAngle) > 0) break;
+            else if(wrap(currentAngle - setAngle) <= 0) break;*/
+            if(abs(turn) < 0.05) break;
         }
 
         // Stop driving

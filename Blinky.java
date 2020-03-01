@@ -25,6 +25,7 @@ class Blinky {
 
     DcMotor leftintake = null;
     DcMotor rightintake = null;
+    DcMotor tape = null;
     DcMotor sidelift = null;
     Servo sideliftgrab = null;
     Servo platform = null;
@@ -54,6 +55,7 @@ class Blinky {
         four = ahwMap.dcMotor.get("four");
         leftintake = ahwMap.dcMotor.get("leftintake");
         rightintake = ahwMap.dcMotor.get("rightintake");
+        tape = ahwMap.dcMotor.get("tape");
 
         sidelift = ahwMap.dcMotor.get("sidelift");
         sideliftgrab = ahwMap.servo.get("sideliftgrab");
@@ -74,6 +76,7 @@ class Blinky {
         leftintake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightintake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightintake.setDirection(DcMotorSimple.Direction.REVERSE);
+        tape.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         sidelift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
